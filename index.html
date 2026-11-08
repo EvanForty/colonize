@@ -1,0 +1,1212 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="icon" type="image/png" href="mark.png">
+<title>Colonize — AI Mars colonization lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=Chakra+Petch:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F3E9D6; --surface:#EADBC2; --panel:#FBF4E7; --ink:#231A15; --muted:#6B5446;
+  --rust:#C9501F; --rust-ink:#FFF6E8; --terra:#8E2A17; --line:#CDB89A; --ok:#2F7D5B; --cool:#2D7D96; --bad:#B3261E;
+  --display:"Silkscreen", "Courier New", monospace;
+  --body:"Chakra Petch", system-ui, -apple-system, "Segoe UI", sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#17110E; --surface:#221915; --panel:#1D1612; --ink:#F3E9D6; --muted:#B49A84;
+    --rust:#E8682E; --rust-ink:#1A0E08; --terra:#B5381E; --line:#3D2D24; --ok:#5CC08E; --cool:#6FB7C9; --bad:#FF6B5B;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#17110E; --surface:#221915; --panel:#1D1612; --ink:#F3E9D6; --muted:#B49A84;
+  --rust:#E8682E; --rust-ink:#1A0E08; --terra:#B5381E; --line:#3D2D24; --ok:#5CC08E; --cool:#6FB7C9; --bad:#FF6B5B;
+}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px);scroll-behavior:smooth}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.55;-webkit-font-smoothing:antialiased}
+img{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--rust);outline-offset:3px}
+.px{clip-path:polygon(0 6px,6px 6px,6px 0,calc(100% - 6px) 0,calc(100% - 6px) 6px,100% 6px,100% calc(100% - 6px),calc(100% - 6px) calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,6px calc(100% - 6px),0 calc(100% - 6px))}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:2px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:21;background:var(--bg)}
+.top .wrap{display:flex;align-items:center;gap:24px;height:64px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:var(--display);font-weight:700;font-size:22px}
+.brand img{image-rendering:pixelated;width:60px;height:auto}
+.top nav{display:flex;gap:20px;margin-left:auto;font-weight:500}
+.top nav a{text-decoration:none;color:var(--muted)}
+.top nav a:hover{color:var(--ink)}
+.btn{font:600 15px/1 var(--body);border:0;cursor:pointer;padding:12px 18px;background:var(--rust);color:var(--rust-ink);display:inline-flex;align-items:center;gap:8px;text-decoration:none}
+.btn:hover{filter:brightness(1.08)}
+.btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--line)}
+.btn.small{padding:8px 12px;font-size:14px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.xbtn{padding:10px 12px}
+.xbtn svg{width:18px;height:18px;display:block}
+.top .xbtn{margin-left:-12px}
+@media (max-width:820px){.top .xbtn{margin-left:auto;margin-right:-12px}}
+.wallet .dot{width:8px;height:8px;background:var(--ok);display:inline-block}
+@media (max-width:820px){.top nav{display:none}.top .wrap{justify-content:space-between}}
+
+/* hero */
+.hero{padding:56px 0 40px}
+.hero .wrap{display:grid;grid-template-columns:1.25fr .75fr;gap:48px;align-items:center}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(56px,10vw,128px);line-height:.9;margin:0 0 18px;letter-spacing:-.02em}
+.hero .tag{font-family:var(--display);font-size:clamp(16px,2vw,22px);color:var(--rust);margin:0 0 20px}
+.hero p.lede{font-size:20px;max-width:34em;margin:0 0 28px;color:var(--ink)}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap}
+.ticker{margin-top:28px;font-size:14px;color:var(--muted)}
+.ticker b{color:var(--ink);font-family:var(--display);font-weight:400}
+.logo-tile{position:relative;aspect-ratio:1;background:#A42D1A;overflow:hidden}
+.logo-tile img{width:100%;height:100%;image-rendering:pixelated;display:block}
+.logo-tile .star{position:absolute;width:6px;height:6px;background:#F3E9D6;opacity:.8;animation:tw 3s steps(2) infinite}
+@keyframes tw{50%{opacity:.15}}
+@media (prefers-reduced-motion:reduce){.logo-tile .star{animation:none}html{scroll-behavior:auto}}
+@media (max-width:860px){.hero .wrap{grid-template-columns:1fr}.logo-tile{max-width:360px}}
+
+/* section headings */
+.sec{padding:72px 0}
+.sec h2{font-family:var(--display);font-weight:700;font-size:clamp(30px,4.4vw,48px);line-height:1.05;margin:0 0 12px}
+.sec .intro{color:var(--muted);max-width:40em;margin:0 0 36px;font-size:18px}
+
+/* simulator */
+.sim-sec{padding:0 0 24px}
+.sim-head{display:flex;align-items:end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+.sim-head h2{margin:0}
+.sim{display:grid;grid-template-columns:1fr 360px;background:#120D0B;color:#F3E9D6;border:2px solid #3D2D24;min-height:640px}
+.view{position:relative;min-height:640px;overflow:hidden;background:#C2865A}
+#gl{position:absolute;inset:0;width:100%;height:100%;display:block;image-rendering:pixelated;touch-action:none;cursor:grab}
+#gl.building{cursor:crosshair}
+.hud{position:absolute;left:10px;right:10px;top:10px;display:flex;flex-wrap:wrap;gap:6px;pointer-events:none}
+.res{background:rgba(18,13,11,.82);padding:6px 10px;min-width:92px;font-size:13px;line-height:1.25;pointer-events:auto}
+.res b{display:block;font-family:var(--display);font-weight:400;font-size:15px}
+.res small{color:#B49A84}
+.res .pos{color:#5CC08E}.res .neg{color:#FF7A66}
+.res.warn{box-shadow:inset 0 -3px 0 #FF6B5B}
+.timebar{position:absolute;right:10px;bottom:10px;display:flex;gap:4px;align-items:center;background:rgba(18,13,11,.82);padding:6px}
+.timebar button{font:600 13px var(--body);background:#2A201B;color:#F3E9D6;border:0;padding:6px 9px;cursor:pointer}
+.timebar button.on{background:#E8682E;color:#1A0E08}
+.timebar .clock{font-family:var(--display);font-size:13px;padding:0 8px;min-width:120px}
+.logbox{position:absolute;left:10px;bottom:10px;width:min(440px,calc(100% - 330px));max-height:150px;overflow:auto;background:rgba(18,13,11,.78);padding:8px 10px;font-size:13px;line-height:1.4}
+.logbox p{margin:0 0 3px}
+.logbox time{color:#E8682E;font-family:var(--display);font-size:11px;margin-right:6px}
+.logbox .ai{color:#8FD3E6}.logbox .bad{color:#FF8A78}.logbox .good{color:#7FD9A6}
+.labels{position:absolute;inset:0;pointer-events:none}
+.site-label{position:absolute;transform:translate(-50%,-130%);background:#120D0B;color:#F3E9D6;padding:5px 9px;font-size:13px;white-space:nowrap;pointer-events:auto;cursor:pointer;border:2px solid #E8682E}
+.site-label.taken{border-color:#5CC08E}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(18,13,11,.55);padding:20px}
+.overlay[hidden]{display:none}
+.card{background:#1D1612;border:2px solid #E8682E;padding:24px;max-width:460px}
+.card h3{font-family:var(--display);margin:0 0 10px;font-size:22px}
+.card p{margin:0 0 14px;color:#D9C6B0}
+.flash{position:absolute;inset:0;background:#FFF3C4;opacity:0;pointer-events:none;transition:opacity .6s}
+.storm-tint{position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(200,110,50,.0),rgba(170,80,30,.55));opacity:0;pointer-events:none;transition:opacity 1.5s}
+.toolbar{position:absolute;right:10px;top:auto;bottom:56px;display:flex;flex-direction:column;gap:4px}
+.toolbar button{font:600 12px var(--body);background:rgba(18,13,11,.82);color:#F3E9D6;border:0;padding:7px 9px;cursor:pointer;text-align:left}
+
+/* side panel */
+.side{border-left:2px solid #3D2D24;display:flex;flex-direction:column;min-height:0;max-height:760px}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:2px solid #3D2D24}
+.tabs button{font:600 12.5px var(--body);background:none;color:#B49A84;border:0;padding:12px 2px;cursor:pointer;border-bottom:3px solid transparent}
+.tabs button[aria-selected="true"]{color:#F3E9D6;border-bottom-color:#E8682E}
+.pane{padding:14px 16px;overflow:auto;flex:1}
+.pane h3{font-family:var(--display);font-weight:400;font-size:17px;margin:4px 0 8px}
+.pane p.hint{color:#B49A84;font-size:14px;margin:0 0 12px}
+.blist{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.bitem{background:#2A201B;color:#F3E9D6;border:2px solid transparent;padding:8px;text-align:left;cursor:pointer;font:500 13px/1.3 var(--body)}
+.bitem b{display:block;font-size:14px}
+.bitem small{color:#B49A84}
+.bitem.on{border-color:#E8682E}
+.bitem[disabled]{opacity:.4;cursor:not-allowed}
+.prompt{display:flex;gap:6px;margin-bottom:14px}
+.prompt input{flex:1;min-width:0;background:#2A201B;color:#F3E9D6;border:2px solid #3D2D24;padding:9px;font:15px var(--body)}
+.prompt input::placeholder{color:#8E7563}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin:-6px 0 14px}
+.chips button{font:12px var(--body);background:none;color:#D9C6B0;border:1px solid #3D2D24;padding:4px 7px;cursor:pointer}
+.row{display:flex;justify-content:space-between;gap:8px;font-size:14px;padding:5px 0;border-bottom:1px solid #2E231D}
+.row span:last-child{font-weight:600}
+.slider{margin:12px 0}
+.slider label{display:flex;justify-content:space-between;font-size:14px}
+.slider input{width:100%;accent-color:#E8682E}
+.meter{height:8px;background:#2A201B;margin-top:4px}
+.meter i{display:block;height:100%;background:#E8682E}
+.sel-card{background:#2A201B;padding:10px;margin:10px 0}
+.pane .btn{margin:4px 4px 4px 0}
+.flybox{border:2px solid #3D2D24;padding:10px;margin-top:14px;font-size:14px}
+.flybox h4{margin:0 0 6px;font-family:var(--display);font-weight:400;font-size:14px;color:#E8682E}
+@media (max-width:980px){
+  .sim{grid-template-columns:1fr}
+  .side{border-left:0;border-top:2px solid #3D2D24;max-height:none}
+  .view{min-height:520px}
+  .logbox{width:calc(100% - 20px);bottom:60px;max-height:96px}
+}
+
+/* steps & systems */
+.steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;counter-reset:s;border-top:2px solid var(--ink)}
+.steps li{list-style:none;padding:18px 18px 0 0;counter-increment:s}
+.steps li::before{content:counter(s);font-family:var(--display);font-size:40px;color:var(--rust);display:block;line-height:1;margin-bottom:10px}
+.steps h3{margin:0 0 6px;font-size:18px}
+.steps p{margin:0;color:var(--muted);font-size:15px}
+.steps{padding:0;margin:0}
+@media (max-width:860px){.steps{grid-template-columns:1fr 1fr}.steps li{padding-bottom:16px}}
+.systems{display:grid;grid-template-columns:1fr 1fr;column-gap:56px}
+.sys{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:start;padding:18px 0;border-bottom:2px solid var(--line)}
+.sys svg{width:44px;height:44px;image-rendering:pixelated;color:var(--rust)}
+.sys h3{margin:0 0 3px;font-size:18px}
+.sys p{margin:0;color:var(--muted);font-size:15px;max-width:30em}
+.sys .btn{white-space:nowrap}
+@media (max-width:860px){.systems{grid-template-columns:1fr}.sys{grid-template-columns:44px 1fr}.sys .btn{grid-column:2;justify-self:start}}
+
+/* flywheel */
+.fly{display:grid;grid-template-columns:420px 1fr;gap:56px;align-items:center}
+.fly svg{width:100%;height:auto}
+.fly ol{margin:0;padding:0;counter-reset:f}
+.fly li{list-style:none;padding:16px 0 16px 64px;position:relative;border-bottom:2px solid var(--line);counter-increment:f}
+.fly li::before{content:counter(f);position:absolute;left:0;top:14px;width:44px;height:44px;display:grid;place-items:center;background:var(--rust);color:var(--rust-ink);font-family:var(--display);font-size:20px}
+.fly h3{margin:0 0 2px;font-size:18px}
+.fly p{margin:0;color:var(--muted);font-size:15px}
+.note{font-size:14px;color:var(--muted);margin-top:18px;max-width:46em}
+@media (max-width:860px){.fly{grid-template-columns:1fr}.fly svg{max-width:340px}}
+
+/* overview + leaderboard */
+.overview img{display:block;width:100%;height:auto;border:2px solid var(--line)}
+.lb{width:100%;border-collapse:collapse;font-size:15px}
+.lb th{text-align:left;color:var(--muted);font-weight:500;padding:8px 10px;border-bottom:2px solid var(--ink)}
+.lb td{padding:10px;border-bottom:1px solid var(--line)}
+.lb td.num{font-family:var(--display);text-align:right}
+.lb th.num{text-align:right}
+.lb tr.you td{background:var(--surface)}
+.lb .tagx{font-size:12px;color:var(--muted)}
+.lb .signed{font-size:12px;color:var(--ok);font-weight:600}
+.lb-wrap{overflow-x:auto}
+
+footer{border-top:2px solid var(--line);padding:36px 0 48px;color:var(--muted);font-size:14px}
+footer .wrap{display:flex;gap:32px;justify-content:space-between;flex-wrap:wrap}
+footer p{max-width:46em;margin:0 0 8px}
+
+/* modal */
+.modal{position:fixed;inset:0;z-index:50;background:rgba(10,7,5,.6);display:flex;align-items:center;justify-content:center;padding:20px}
+.modal[hidden]{display:none}
+.modal .card{width:100%;max-width:420px;color:#F3E9D6}
+.wlist{display:grid;gap:8px;margin:12px 0}
+.wlist button{display:flex;justify-content:space-between;align-items:center;background:#2A201B;color:#F3E9D6;border:2px solid #3D2D24;padding:12px;font:600 15px var(--body);cursor:pointer}
+.wlist button:hover{border-color:#E8682E}
+.wlist a{color:#E8682E}
+.addr{font-family:var(--display);font-size:13px;word-break:break-all;background:#2A201B;padding:8px;margin:8px 0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Colonize home"><img src="mark.png" alt="" width="60" height="40"><span>Colonize</span></a>
+    <nav aria-label="Sections">
+      <a href="#sim">Simulator</a><a href="#systems">Systems</a><a href="#flywheel">Token</a><a href="#overview">Overview</a><a href="#leaderboard">Leaderboard</a>
+    </nav>
+    <a class="btn px ghost xbtn" href="https://x.com/ColonizeDotFun" target="_blank" rel="noopener" aria-label="Colonize on X (@ColonizeDotFun)"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+    <button id="walletBtn" class="btn px wallet" type="button">Connect wallet</button>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Colonize</h1>
+      <p class="tag">Engineer survival. Build civilization.</p>
+      <p class="lede">An AI-powered laboratory for designing, simulating and stress-testing self-sustaining settlements on Mars, from the first landing pad to a network of outposts.</p>
+      <div class="ctas">
+        <a class="btn px" href="#sim">Launch the simulator</a>
+        <a class="btn px ghost" href="#systems">See what you can build</a>
+      </div>
+      <p class="ticker">Ticker <b>$COLONIZE</b> on Solana</p>
+    </div>
+    <div class="logo-tile px" id="logoTile"><img src="logo.png" alt="Colonize logo: a pixel-art Mars base with a rocket, geodesic dome and dish under a red planet"></div>
+  </div>
+</section>
+
+<section class="sim-sec" id="sim">
+  <div class="wrap">
+    <div class="sim-head">
+      <div>
+        <h2 style="font-family:var(--display);font-size:clamp(28px,4vw,44px);line-height:1.05">Mars colony simulator</h2>
+        <p style="margin:6px 0 0;color:var(--muted)">Pick a landing site, design the base, deploy AI engineers and keep your crew alive. Drag to orbit, scroll or pinch to zoom, right-drag to pan.</p>
+      </div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="sim px">
+      <div class="view" id="view">
+        <canvas id="gl" aria-label="3D Mars colony view"></canvas>
+        <div class="labels" id="labels"></div>
+        <div class="storm-tint" id="stormTint"></div>
+        <div class="flash" id="flash"></div>
+        <div class="hud" id="hud" hidden></div>
+        <div class="logbox" id="log" aria-live="polite"></div>
+        <div class="toolbar" id="toolbar">
+          <button type="button" id="pixBtn">Pixel view: on</button>
+          <button type="button" id="homeBtn">Recenter</button>
+        </div>
+        <div class="timebar" id="timebar" hidden>
+          <span class="clock" id="clock">Sol 1</span>
+          <button type="button" data-speed="0">Pause</button>
+          <button type="button" data-speed="1" class="on">1×</button>
+          <button type="button" data-speed="3">3×</button>
+          <button type="button" data-speed="8">8×</button>
+        </div>
+        <div class="overlay" id="startOv">
+          <div class="card px">
+            <h3>Select a landing site</h3>
+            <p>This is a digital twin of four candidate regions. Each trades off ice, sunlight, building material and radiation cover. Click a beacon on the map or choose from the list on the right.</p>
+            <button class="btn px" type="button" id="startOvBtn">Show me the sites</button>
+          </div>
+        </div>
+        <div class="overlay" id="endOv" hidden>
+          <div class="card px" id="endCard"></div>
+        </div>
+      </div>
+      <aside class="side" aria-label="Colony controls">
+        <div class="tabs" role="tablist">
+          <button role="tab" data-tab="build" aria-selected="true">Build</button>
+          <button role="tab" data-tab="agents" aria-selected="false">Engineers</button>
+          <button role="tab" data-tab="terra" aria-selected="false">Terraform</button>
+          <button role="tab" data-tab="stress" aria-selected="false">Stress test</button>
+          <button role="tab" data-tab="expand" aria-selected="false">Expand</button>
+        </div>
+        <div class="pane" id="pane"></div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="process">
+  <div class="wrap">
+    <h2>From landing to civilization</h2>
+    <p class="intro">Every colony follows the same five stages. The simulator above walks you through each one.</p>
+    <ol class="steps">
+      <li><h3>Select landing site</h3><p>Weigh terrain, ice, sunlight and radiation across real Martian regions.</p></li>
+      <li><h3>Design colony</h3><p>Lay out habitats, power and life support by hand or in plain language.</p></li>
+      <li><h3>Deploy AI engineers</h3><p>Rovers that spot shortfalls, build fixes and repair failures on their own.</p></li>
+      <li><h3>Simulate survival</h3><p>Dust storms, solar flares and equipment failures test every system.</p></li>
+      <li><h3>Expand civilization</h3><p>Found outposts at new sites and link them into one network.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="sec" id="systems" style="padding-top:24px">
+  <div class="wrap">
+    <h2>Ten systems, one planet</h2>
+    <p class="intro">Each system is playable in the simulator. Use the button beside it to jump straight there.</p>
+    <div class="systems" id="systemsList"></div>
+  </div>
+</section>
+
+<section class="sec" id="flywheel" style="background:var(--surface)">
+  <div class="wrap">
+    <h2>The $COLONIZE flywheel</h2>
+    <p class="intro">$COLONIZE is the utility token for simulation resources. The simulator uses demo credits to show how the loop is meant to work.</p>
+    <div class="fly">
+      <svg viewBox="0 0 200 200" role="img" aria-label="A loop of four arrows around a pixel Mars dome">
+        <g fill="none" stroke="var(--rust)" stroke-width="10" stroke-linecap="square">
+          <path d="M100 20 A80 80 0 0 1 180 100"/><path d="M180 100 A80 80 0 0 1 100 180"/><path d="M100 180 A80 80 0 0 1 20 100"/><path d="M20 100 A80 80 0 0 1 100 20"/>
+        </g>
+        <g fill="var(--rust)"><path d="M172 84 l16 0 -8 16z"/><path d="M116 172 l0 16 -16 -8z"/><path d="M12 116 l16 0 -8 -16z"/><path d="M84 12 l0 16 16 -8z"/></g>
+        <g shape-rendering="crispEdges">
+          <rect x="70" y="62" width="60" height="60" fill="var(--terra)"/>
+          <rect x="62" y="70" width="76" height="44" fill="var(--terra)"/>
+          <rect x="66" y="112" width="68" height="8" fill="#231A15"/>
+          <path d="M74 112 h52 v-10 h-6 v-8 h-8 v-6 h-24 v6 h-8 v8 h-6z" fill="#F3E9D6" stroke="#231A15" stroke-width="3"/>
+          <rect x="96" y="104" width="8" height="8" fill="var(--rust)"/>
+        </g>
+      </svg>
+      <ol>
+        <li><h3>Establish colonies</h3><p>Design settlements and deploy autonomous engineering systems.</p></li>
+        <li><h3>Spend $COLONIZE</h3><p>Unlock advanced simulations, AI agents and infrastructure modules such as fission reactors and the terraforming lab.</p></li>
+        <li><h3>Expand civilization</h3><p>Colonies produce research data and engineering blueprints that feed the leaderboard.</p></li>
+        <li><h3>Reward innovation</h3><p>A proposed share of platform fees funds token buybacks and rewards for the best-performing colony designs.</p></li>
+      </ol>
+    </div>
+    <p class="note">Fee percentages, buybacks and rewards are proposals, not commitments. Demo credits in the simulator have no value and are not tokens. Nothing on this page is financial advice.</p>
+  </div>
+</section>
+
+<section class="sec overview" id="overview">
+  <div class="wrap">
+    <h2>Project overview</h2>
+    <p class="intro">The launchpad for Mars colonization, on one page.</p>
+    <img src="overview.jpg" alt="Colonize overview: design colonies, deploy AI agents, produce resources, expand settlements and accelerate Mars R&amp;D; core systems and the four-step flywheel." loading="lazy" width="1536" height="1024">
+  </div>
+</section>
+
+<section class="sec" id="leaderboard" style="padding-top:24px">
+  <div class="wrap">
+    <h2>Global colonization leaderboard</h2>
+    <p class="intro">Submit a run from the simulator. Runs from a connected wallet can be signed so others know who built them. Rows marked as simulated are reference colonies for comparison.</p>
+    <div class="lb-wrap"><table class="lb" id="lbTable"></table></div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Engineer survival. Build civilization. Colonize Mars.</p>
+    <p><a href="https://x.com/ColonizeDotFun" target="_blank" rel="noopener">Follow @ColonizeDotFun on X</a></p>
+  </div>
+</footer>
+
+<div class="modal" id="walletModal" hidden role="dialog" aria-modal="true" aria-labelledby="wmTitle">
+  <div class="card px">
+    <h3 id="wmTitle">Connect a Solana wallet</h3>
+    <div id="wmBody"></div>
+    <button class="btn px ghost small" type="button" id="wmClose" style="margin-top:8px;color:#F3E9D6">Close</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.iife.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+"use strict";
+const $=s=>document.querySelector(s);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const fmt=(n,d=0)=>(Math.round(n*10**d)/10**d).toLocaleString(undefined,{minimumFractionDigits:d,maximumFractionDigits:d});
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+/* stars on logo tile */
+(function(){const t=$('#logoTile');for(let i=0;i<14;i++){const s=document.createElement('i');s.className='star';s.style.left=(5+Math.random()*90)+'%';s.style.top=(3+Math.random()*20)+'%';s.style.animationDelay=(Math.random()*3)+'s';t.appendChild(s)}})();
+
+/* ================= WALLET (Solana) ================= */
+const Wallet={pubkey:null,provider:null,name:null,demo:false};
+function short(a){return a?a.slice(0,4)+'…'+a.slice(-4):''}
+function providers(){
+  const l=[];
+  if(window.phantom&&window.phantom.solana) l.push({name:'Phantom',p:window.phantom.solana});
+  else if(window.solana&&window.solana.isPhantom) l.push({name:'Phantom',p:window.solana});
+  if(window.solflare&&window.solflare.isSolflare) l.push({name:'Solflare',p:window.solflare});
+  if(window.backpack&&window.backpack.solana) l.push({name:'Backpack',p:window.backpack.solana});
+  if(!l.length&&window.solana) l.push({name:'Solana wallet',p:window.solana});
+  return l;
+}
+function toPk(v){
+  const s=typeof v==='string'?v:v.toString();
+  if(window.solanaWeb3){return new solanaWeb3.PublicKey(s).toBase58()}
+  return s;
+}
+function setWalletUI(){
+  const b=$('#walletBtn');
+  if(Wallet.pubkey){b.innerHTML='<span class="dot"></span>'+short(Wallet.pubkey)+(Wallet.demo?' (demo)':'');b.setAttribute('aria-label','Wallet connected: '+Wallet.pubkey+'. Open wallet menu')}
+  else{b.textContent='Connect wallet';b.removeAttribute('aria-label')}
+  if(typeof renderLB==='function')renderLB();
+}
+async function connectWith(entry){
+  try{
+    const res=await entry.p.connect();
+    const pk=(res&&res.publicKey)||entry.p.publicKey;
+    Wallet.pubkey=toPk(pk);Wallet.provider=entry.p;Wallet.name=entry.name;Wallet.demo=false;
+    if(entry.p.on){entry.p.on('disconnect',()=>{Wallet.pubkey=null;Wallet.provider=null;setWalletUI()});
+      entry.p.on('accountChanged',k=>{if(k){Wallet.pubkey=toPk(k);setWalletUI()}else{Wallet.pubkey=null;setWalletUI()}})}
+    closeModal();setWalletUI();
+    logMsg('Commander wallet '+short(Wallet.pubkey)+' connected via '+entry.name+'.','good');
+  }catch(e){
+    $('#wmBody').insertAdjacentHTML('beforeend','<p style="color:#FF8A78">'+(e&&e.message?e.message:'The wallet did not connect.')+' Approve the request in your wallet and try again.</p>');
+  }
+}
+function useDemoWallet(){
+  if(!window.solanaWeb3){return}
+  const kp=solanaWeb3.Keypair.generate();
+  Wallet.pubkey=kp.publicKey.toBase58();Wallet.provider=null;Wallet.name='Demo keypair';Wallet.demo=true;
+  closeModal();setWalletUI();
+  logMsg('Demo commander key generated locally: '+short(Wallet.pubkey)+'.','good');
+}
+async function disconnect(){
+  try{if(Wallet.provider&&Wallet.provider.disconnect)await Wallet.provider.disconnect()}catch(e){}
+  Wallet.pubkey=null;Wallet.provider=null;Wallet.demo=false;closeModal();setWalletUI();
+}
+function openModal(){
+  const body=$('#wmBody');
+  if(Wallet.pubkey){
+    body.innerHTML='<p style="color:#D9C6B0;margin:0 0 6px">Connected with '+Wallet.name+'</p><div class="addr">'+Wallet.pubkey+'</div>'+
+      '<div class="wlist"><button type="button" id="wCopy">Copy address</button><button type="button" id="wDisc">Disconnect</button></div>';
+    $('#wCopy').onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(Wallet.pubkey);$('#wCopy').textContent='Copied'};
+    $('#wDisc').onclick=disconnect;
+  }else{
+    const list=providers();
+    let h='';
+    if(list.length){h+='<p style="color:#D9C6B0;margin:0">Choose a detected wallet.</p><div class="wlist">'+list.map((w,i)=>'<button type="button" data-w="'+i+'">'+w.name+'<span>Detected</span></button>').join('')+'</div>'}
+    else{h+='<p style="color:#D9C6B0;margin:0 0 6px">No Solana wallet was found in this browser. Wallet extensions may not reach pages shown inside an embedded frame; if you have one installed, open this page in its own tab.</p>'+
+      '<div class="wlist"><button type="button" onclick="window.open(\'https://phantom.app/download\',\'_blank\',\'noopener\')">Install Phantom<span>phantom.app</span></button>'+
+      '<button type="button" onclick="window.open(\'https://solflare.com/download\',\'_blank\',\'noopener\')">Install Solflare<span>solflare.com</span></button></div>'}
+    if(window.solanaWeb3)h+='<div class="wlist"><button type="button" id="wDemo">Use a demo keypair<span>No funds, local only</span></button></div>';
+    else h+='<p style="color:#FF8A78">The Solana SDK did not load, so the demo keypair is unavailable.</p>';
+    body.innerHTML=h;
+    body.querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>connectWith(list[+b.dataset.w]));
+    const d=$('#wDemo');if(d)d.onclick=useDemoWallet;
+  }
+  $('#walletModal').hidden=false;
+  const f=$('#walletModal').querySelector('button');f&&f.focus();
+}
+function closeModal(){$('#walletModal').hidden=true}
+$('#walletBtn').onclick=openModal;
+$('#wmClose').onclick=closeModal;
+$('#walletModal').addEventListener('click',e=>{if(e.target.id==='walletModal')closeModal()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+// silent reconnect to trusted wallet
+setTimeout(async()=>{const l=providers();if(!l.length)return;try{const r=await l[0].p.connect({onlyIfTrusted:true});const pk=(r&&r.publicKey)||l[0].p.publicKey;if(pk){Wallet.pubkey=toPk(pk);Wallet.provider=l[0].p;Wallet.name=l[0].name;setWalletUI()}}catch(e){}},600);
+
+/* ================= LOG ================= */
+const logEl=$('#log');
+function stamp(){return G?('S'+G.sol+' '+String(G.hour).padStart(2,'0')+'h'):'—'}
+function logMsg(t,cls){const p=document.createElement('p');if(cls)p.className=cls;p.innerHTML='<time>'+stamp()+'</time>'+t;logEl.prepend(p);while(logEl.children.length>60)logEl.lastChild.remove()}
+
+/* ================= WORLD ================= */
+const S=480,SEG=150;
+function hash2(x,y){let h=(Math.imul(x|0,374761393)+Math.imul(y|0,668265263))|0;h=Math.imul(h^(h>>>13),1274126177);h^=h>>>16;return (h>>>0)/4294967296}
+function vnoise(x,y){const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=xf*xf*(3-2*xf),v=yf*yf*(3-2*yf);const a=hash2(xi,yi),b=hash2(xi+1,yi),c=hash2(xi,yi+1),d=hash2(xi+1,yi+1);return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v}
+function fbm(x,y,o){o=o||5;let s=0,a=.5,f=1;for(let i=0;i<o;i++){s+=a*vnoise(x*f,y*f);f*=2;a*=.5}return s}
+const SITES=[
+ {id:'jezero',name:'Jezero Crater',x:-120,z:90,r:30,ice:.7,sun:1.0,mat:1.25,rad:1.0,blurb:'Ancient river delta on a crater floor. Clay-rich sediment is good building stock; moderate ice.'},
+ {id:'arcadia',name:'Arcadia Planitia',x:115,z:110,r:30,ice:1.6,sun:.82,mat:.9,rad:1.0,blurb:'Flat northern plains with shallow ground ice. Easy water, weaker sunlight.'},
+ {id:'valles',name:'Valles Marineris rim',x:40,z:-45,r:28,ice:.75,sun:1.18,mat:1.15,rad:.9,blurb:'Canyon edge near the equator. Strong sun and exposed minerals, little ice.'},
+ {id:'arsia',name:'Arsia Mons lava tube',x:-95,z:-115,r:28,ice:.55,sun:1.08,mat:1.0,rad:.45,blurb:'Lava-tube skylight on a volcano flank. Natural rock overhead halves radiation.'}
+];
+const CRATERS=[{x:-120,z:90,r:50,d:12}];
+for(let i=0;i<40&&CRATERS.length<16;i++){
+  const x=(hash2(i,7)-.5)*S*.9,z=(hash2(i,13)-.5)*S*.9,r=8+hash2(i,21)*22;
+  if(SITES.some(s=>Math.hypot(s.x-x,s.z-z)<s.r+r+20))continue;
+  if(Math.abs(z-(-100+14*Math.sin(x/45)))<r+14)continue;
+  CRATERS.push({x,z,r,d:r*.28});
+}
+function rawH(x,z){
+  let h=(fbm(x*.012+10,z*.012+3)-.5)*26+(fbm(x*.05,z*.05,3)-.5)*5;
+  const dv=Math.hypot(x+160,z+170);h+=42*Math.exp(-((dv/70)**2));
+  const cz=z-(-100+14*Math.sin(x/45));h-=22*Math.exp(-((cz/13)**2));
+  for(const c of CRATERS){const t=Math.hypot(x-c.x,z-c.z)/c.r;if(t<1.7){if(t<1)h-=c.d*(1-t*t);h+=c.d*.45*Math.exp(-(((t-1)/.18)**2))}}
+  return h;
+}
+SITES.forEach(s=>s.base=rawH(s.x,s.z));
+function H(x,z){
+  let h=rawH(x,z);
+  for(const s of SITES){const d=Math.hypot(x-s.x,z-s.z);if(d<s.r+18){let w=clamp(1-(d-s.r)/18,0,1);w=w*w*(3-2*w);h=h+(s.base-h)*w}}
+  return h;
+}
+
+/* ================= THREE SETUP ================= */
+let renderer,scene,camera,terrain,sun,hemi,dust,buildingsGroup,agentGroup,roadGroup;
+const canvas=$('#gl'),view=$('#view');
+const THREE_OK=typeof THREE!=='undefined';
+let pixelMode=true;
+const cam={target:null,r:340,theta:.6,phi:.95,goal:null};
+const M={};
+function mat(c,o){return new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.85,metalness:.05,flatShading:true},o||{}))}
+function initThree(){
+  renderer=new THREE.WebGLRenderer({canvas,antialias:false});
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFShadowMap;
+  scene=new THREE.Scene();
+  scene.background=new THREE.Color('#C9925F');
+  scene.fog=new THREE.Fog('#C9925F',180,560);
+  camera=new THREE.PerspectiveCamera(50,1,.5,1500);
+  cam.target=new THREE.Vector3(0,0,0);
+  hemi=new THREE.HemisphereLight('#FFD9B0','#5A2414',.55);scene.add(hemi);
+  sun=new THREE.DirectionalLight('#FFF0DC',1.0);
+  sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);
+  const sc=sun.shadow.camera;sc.left=-50;sc.right=50;sc.top=50;sc.bottom=-50;sc.near=1;sc.far=400;
+  scene.add(sun);scene.add(sun.target);
+  // materials
+  M.ivory=mat('#EFE3CB');M.dark=mat('#2A2220');M.rust=mat('#D2602A');M.glow=mat('#FF9A3C',{emissive:'#FF7A1A',emissiveIntensity:.9});
+  M.panel=mat('#2C3E6E',{metalness:.4,roughness:.4});M.frame=new THREE.MeshBasicMaterial({color:'#7A5240',wireframe:true});
+  M.green=mat('#9FD38A',{emissive:'#3F7A2E',emissiveIntensity:.5,transparent:true,opacity:.85});
+  M.cyan=mat('#BFE7F0',{emissive:'#3E8FA6',emissiveIntensity:.4});M.reg=mat('#8E4A2A');M.fail=mat('#FF3B2E',{emissive:'#FF1A0A',emissiveIntensity:.8});
+  M.ghostOk=new THREE.MeshBasicMaterial({color:'#7CFFB0',transparent:true,opacity:.45,depthWrite:false});
+  M.ghostBad=new THREE.MeshBasicMaterial({color:'#FF5A4A',transparent:true,opacity:.45,depthWrite:false});
+  // terrain
+  const g=new THREE.PlaneGeometry(S,S,SEG,SEG);g.rotateX(-Math.PI/2);
+  const pos=g.attributes.position,col=new Float32Array(pos.count*3);
+  const cLow=new THREE.Color('#6A2614'),cHigh=new THREE.Color('#DE7C40'),frost=new THREE.Color('#EADFD0'),tmp=new THREE.Color();
+  const arc=SITES[1];
+  for(let i=0;i<pos.count;i++){
+    const x=pos.getX(i),z=pos.getZ(i),h=H(x,z);pos.setY(i,h);
+    tmp.copy(cLow).lerp(cHigh,clamp((h+20)/52,0,1));
+    const n=.82+fbm(x*.18,z*.18,2)*.36;tmp.multiplyScalar(n);
+    const da=Math.hypot(x-arc.x,z-arc.z);
+    if(da<95&&da>arc.r-4&&fbm(x*.07+5,z*.07,3)>.56)tmp.lerp(frost,.55);
+    col[i*3]=tmp.r;col[i*3+1]=tmp.g;col[i*3+2]=tmp.b;
+  }
+  g.setAttribute('color',new THREE.BufferAttribute(col,3));g.computeVertexNormals();
+  terrain=new THREE.Mesh(g,new THREE.MeshStandardMaterial({vertexColors:true,flatShading:true,roughness:1}));
+  terrain.receiveShadow=true;scene.add(terrain);
+  // lava tube skylight + site beacons
+  const sk=new THREE.Mesh(new THREE.CylinderGeometry(5,6,3,10),mat('#1A0E0A'));const a=SITES[3];sk.position.set(a.x+22,H(a.x+22,a.z-16)+.6,a.z-16);sk.scale.y=.3;scene.add(sk);
+  SITES.forEach(s=>{
+    const gr=new THREE.Group();
+    const beam=new THREE.Mesh(new THREE.CylinderGeometry(1.2,1.2,60,8,1,true),new THREE.MeshBasicMaterial({color:'#FFB070',transparent:true,opacity:.35,depthWrite:false}));beam.position.y=30;gr.add(beam);
+    const ring=new THREE.Mesh(new THREE.RingGeometry(s.r-1.5,s.r,48),new THREE.MeshBasicMaterial({color:'#FFB070',transparent:true,opacity:.5,side:THREE.DoubleSide,depthWrite:false}));ring.rotation.x=-Math.PI/2;ring.position.y=.4;gr.add(ring);
+    gr.position.set(s.x,s.base,s.z);scene.add(gr);s.beacon=gr;s.beam=beam;
+  });
+  buildingsGroup=new THREE.Group();agentGroup=new THREE.Group();roadGroup=new THREE.Group();scene.add(buildingsGroup,agentGroup,roadGroup);
+  // dust
+  const N=2600,dp=new Float32Array(N*3);for(let i=0;i<N;i++){dp[i*3]=(Math.random()-.5)*180;dp[i*3+1]=Math.random()*45;dp[i*3+2]=(Math.random()-.5)*180}
+  const dg=new THREE.BufferGeometry();dg.setAttribute('position',new THREE.BufferAttribute(dp,3));
+  dust=new THREE.Points(dg,new THREE.PointsMaterial({color:'#E3A06A',size:1.1,transparent:true,opacity:0,depthWrite:false}));scene.add(dust);
+  resize();
+}
+function resize(){
+  if(!renderer)return;
+  const w=view.clientWidth,h=view.clientHeight;
+  renderer.setPixelRatio(pixelMode?clamp(520/Math.max(w,1),.3,1):Math.min(devicePixelRatio,2));
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();
+}
+if(window.ResizeObserver)new ResizeObserver(resize).observe(view);else addEventListener('resize',resize);
+$('#pixBtn').onclick=()=>{pixelMode=!pixelMode;$('#pixBtn').textContent='Pixel view: '+(pixelMode?'on':'off');resize()};
+
+/* ================= BUILDING DEFINITIONS ================= */
+const B={
+  pad:{name:'Landing pad',cost:0,desc:'Supply ships land here.',hidden:true},
+  hab:{name:'Habitat dome',cost:35,desc:'Houses 6 crew. -2 kW',cap:6,pw:-2},
+  solar:{name:'Solar array',cost:12,desc:'Up to +10 kW in daylight',pw:0},
+  battery:{name:'Battery bank',cost:15,desc:'Stores 60 kWh',store:60},
+  nuclear:{name:'Fission reactor',cost:60,desc:'+10 kW day and night',pw:10,lock:'nuclear'},
+  moxie:{name:'Oxygen plant',cost:25,desc:'CO₂ → +6 kg O₂/sol. -2.5 kW',pw:-2.5},
+  icedrill:{name:'Ice drill',cost:25,desc:'+25 L water/sol × site ice. -2 kW',pw:-2},
+  recycler:{name:'Water recycler',cost:20,desc:'Reclaims +8 L water/sol. -1 kW',pw:-1},
+  greenhouse:{name:'Greenhouse',cost:25,desc:'+3 rations, +1.5 kg O₂, -4 L water/sol. -3 kW',pw:-3},
+  regolith:{name:'Regolith plant',cost:20,desc:'+6 t building material/sol. -2 kW',pw:-2},
+  lab:{name:'Research lab',cost:30,desc:'+2 research/sol. -1.5 kW',pw:-1.5},
+  shield:{name:'Regolith berm',cost:20,desc:'Cuts radiation dose 15%'},
+  outpost:{name:'Outpost hub',cost:0,hidden:true,desc:'Remote settlement'}
+};
+function makeMesh(type){
+  const g=new THREE.Group(),add=(geo,m,x,y,z)=>{const o=new THREE.Mesh(geo,m);o.position.set(x||0,y||0,z||0);o.castShadow=true;o.receiveShadow=true;g.add(o);return o};
+  switch(type){
+    case 'pad':{add(new THREE.CylinderGeometry(2.7,2.9,.4,12),M.dark,0,.2,0);const r=new THREE.Group();r.name='rocket';
+      const body=new THREE.Mesh(new THREE.CylinderGeometry(.55,.6,5,10),M.ivory);body.position.y=3;r.add(body);
+      const cone=new THREE.Mesh(new THREE.ConeGeometry(.55,1.4,10),M.ivory);cone.position.y=6.2;r.add(cone);
+      const band=new THREE.Mesh(new THREE.CylinderGeometry(.62,.62,.4,10),M.rust);band.position.y=4.6;r.add(band);
+      for(let i=0;i<3;i++){const f=new THREE.Mesh(new THREE.BoxGeometry(.1,1.1,.8),M.rust);const a=i*2.094;f.position.set(Math.cos(a)*.6,1,Math.sin(a)*.6);f.rotation.y=-a;r.add(f)}
+      r.traverse(o=>{o.castShadow=true});g.add(r);
+      add(new THREE.BoxGeometry(.5,7,.5),M.rust,-2,3.5,0);break}
+    case 'hab':{add(new THREE.SphereGeometry(2.5,12,8,0,Math.PI*2,0,Math.PI/2),M.ivory);
+      const w=new THREE.Mesh(new THREE.IcosahedronGeometry(2.55,1),M.frame);g.add(w);
+      add(new THREE.BoxGeometry(1,1.2,.6),M.glow,0,.6,2.4);add(new THREE.CylinderGeometry(2.6,2.6,.3,12),M.dark,0,.15,0);break}
+    case 'solar':{for(let i=-1;i<=1;i+=2){const p=add(new THREE.BoxGeometry(2.1,.12,3.6),M.panel,i*1.15,1.2,0);p.rotation.x=-.45;add(new THREE.BoxGeometry(.15,1.1,.15),M.dark,i*1.15,.55,0)}break}
+    case 'battery':{for(let i=0;i<3;i++){add(new THREE.BoxGeometry(1.2,1.4,2.6),M.ivory,(i-1)*1.4,.7,0);add(new THREE.BoxGeometry(1.22,.18,2.62),M.cyan,(i-1)*1.4,1.2,0)}break}
+    case 'nuclear':{add(new THREE.CylinderGeometry(.9,1,3.4,10),M.dark,0,1.7,0);add(new THREE.CylinderGeometry(1.02,1.02,.3,10),M.glow,0,2.6,0);
+      for(let i=0;i<4;i++){const f=add(new THREE.BoxGeometry(.12,2.6,1.8),M.ivory,0,1.8,0);f.rotation.y=i*Math.PI/4;}break}
+    case 'moxie':{add(new THREE.BoxGeometry(3.2,1.8,2.2),M.ivory,0,.9,0);add(new THREE.CylinderGeometry(.5,.5,2.6,8),M.cyan,-1,1.3,1.5);add(new THREE.CylinderGeometry(.5,.5,2.6,8),M.cyan,.2,1.3,1.5);add(new THREE.BoxGeometry(.6,.6,.6),M.glow,1.3,2,0);break}
+    case 'icedrill':{add(new THREE.BoxGeometry(.5,6,.5),M.rust,0,3,0);add(new THREE.BoxGeometry(2.2,.4,2.2),M.dark,0,.2,0);const d=add(new THREE.CylinderGeometry(.15,.15,6.6,6),M.ivory,0,3,0);d.name='spin';add(new THREE.SphereGeometry(.9,8,6),M.cyan,1.6,.9,.8);break}
+    case 'recycler':{add(new THREE.CylinderGeometry(1.6,1.6,1.8,12),M.ivory,0,.9,0);add(new THREE.CylinderGeometry(1.62,1.62,.25,12),M.cyan,0,1.5,0);add(new THREE.BoxGeometry(1,.8,1),M.dark,1.8,.4,0);break}
+    case 'greenhouse':{const c=add(new THREE.CylinderGeometry(1.5,1.5,4.6,12),M.green,0,0,0);c.rotation.z=Math.PI/2;add(new THREE.BoxGeometry(.4,1.4,3.1),M.ivory,2.4,.5,0);add(new THREE.BoxGeometry(.4,1.4,3.1),M.ivory,-2.4,.5,0);break}
+    case 'regolith':{add(new THREE.BoxGeometry(2,2.2,2),M.ivory,-1,1.1,0);const cv=add(new THREE.BoxGeometry(3,.25,.7),M.dark,.8,1.3,0);cv.rotation.z=-.5;add(new THREE.ConeGeometry(1,1.1,7),M.reg,2.1,.5,0);break}
+    case 'lab':{add(new THREE.BoxGeometry(3.4,1.6,2.4),M.ivory,0,.8,0);add(new THREE.BoxGeometry(3.42,.2,2.42),M.rust,0,1.2,0);const d=new THREE.Group();d.name='spin';
+      const dish=new THREE.Mesh(new THREE.SphereGeometry(1,10,6,0,Math.PI*2,0,1.1),M.ivory);dish.rotation.x=-.9;dish.position.y=.4;d.add(dish);d.add(new THREE.Mesh(new THREE.CylinderGeometry(.1,.1,.8,6),M.dark));d.position.set(.8,2.2,0);d.traverse(o=>o.castShadow=true);g.add(d);break}
+    case 'shield':{const t=add(new THREE.TorusGeometry(2,.8,5,10,Math.PI),M.reg,0,0,0);t.rotation.x=-Math.PI/2;break}
+    case 'outpost':{add(new THREE.SphereGeometry(3,12,8,0,Math.PI*2,0,Math.PI/2),M.ivory);g.add(new THREE.Mesh(new THREE.IcosahedronGeometry(3.05,1),M.frame));
+      add(new THREE.BoxGeometry(1,1.2,.6),M.glow,0,.6,2.9);for(let i=0;i<3;i++){const p=add(new THREE.BoxGeometry(2,.12,3),M.panel,-6+i*2.4,1,6);p.rotation.x=-.45}break}
+  }
+  return g;
+}
+
+/* ================= GAME STATE ================= */
+let G=null;
+const CELL=5.5;
+function newGame(site){
+  G={site,sol:1,hour:6,step:0,speed:1,over:false,
+    o2:40,water:120,food:30,mat:160,research:0,credits:100,energy:20,
+    crew:4,health:100,lost:0,arrivals:0,nextShip:8,
+    buildings:[],agents:[],queue:[],outposts:[],unlocks:{},auto:true,
+    storm:0,flare:0,stressReward:0,
+    tf:{p:6,t:-63,m:0,tp:6,tt:-63,tm:0},
+    spent:0,pool:0,rewards:0,peak:0,rates:{}};
+  buildingsGroup.clear();agentGroup.clear();roadGroup.clear();
+  const place=(t,i,j)=>addBuilding(t,i,j,true);
+  place('pad',-2,-1);place('hab',0,0);place('solar',2,1);place('solar',2,-1);
+  SITES.forEach(s=>{s.beacon.visible=s!==site;s.beam.material.opacity=.25});
+  $('#hud').hidden=false;$('#timebar').hidden=false;
+  flyTo(site.x,site.base,site.z,80);
+  logMsg('Touchdown at '+site.name+'. Crew of 4, 7 sols of food. Build oxygen, water and food systems first.','good');
+  renderPane();updateHUD();
+}
+function cellPos(i,j){return{x:G.site.x+i*CELL,z:G.site.z+j*CELL}}
+function cellOk(i,j){if(Math.hypot(i,j)*CELL>G.site.r-3)return false;return !G.buildings.some(b=>b.i===i&&b.j===j&&!b.remote)}
+function addBuilding(type,i,j,instant){
+  const p=cellPos(i,j),m=makeMesh(type);
+  const y=H(p.x,p.z);m.position.set(p.x,y,p.z);m.rotation.y=(type==='solar'||type==='greenhouse')?0:Math.round(hash2(i*3,j*5)*4)*Math.PI/2;
+  const b={id:Math.random().toString(36).slice(2,8),type,i,j,mesh:m,built:instant?1:0,failed:false};
+  m.userData.b=b;m.scale.setScalar(instant?1:.01);buildingsGroup.add(m);G.buildings.push(b);
+  return b;
+}
+function findSpot(){
+  let best=null,bd=1e9;
+  for(let i=-6;i<=6;i++)for(let j=-6;j<=6;j++){if(!cellOk(i,j))continue;const d=Math.hypot(i,j)+hash2(i+20,j+20)*.3;if(d<bd){bd=d;best={i,j}}}
+  return best;
+}
+function canAfford(t){return G.mat>=B[t].cost}
+function locked(t){return B[t].lock&&!G.unlocks[B[t].lock]}
+function requestBuild(t,i,j,by){
+  if(!G||G.over)return false;
+  if(locked(t)){logMsg(B[t].name+' is locked. Unlock it in the Engineers tab.','bad');return false}
+  if(!canAfford(t)){logMsg('Not enough material for '+B[t].name+' (needs '+B[t].cost+' t). Build a regolith plant.','bad');return false}
+  if(i===undefined){const s=findSpot();if(!s){logMsg('Colony footprint is full. Found an outpost to keep growing.','bad');return false}i=s.i;j=s.j}
+  if(!cellOk(i,j))return false;
+  G.mat-=B[t].cost;
+  const b=addBuilding(t,i,j,false);
+  const idle=G.agents.find(a=>!a.task);
+  if(idle){idle.task={kind:'build',b};b.waiting=true}
+  if(by)logMsg(by,'ai');
+  updateHUD();return true;
+}
+
+/* ================= RATES ================= */
+function daylight(){return Math.max(0,Math.sin((G.hour-6)/24*Math.PI*2))}
+function computeRates(){
+  const s=G.site,tf=G.tf,eff=1+.08*Math.min(G.agents.length,4);
+  const warm=clamp((tf.t+63)/78,0,1),press=clamp((tf.p-6)/994,0,1);
+  const stormF=G.storm>0?.2:1;
+  let gen=0,use=0,store=20,cap=0,shields=0;
+  const prod={o2:0,water:0,food:0,mat:0,research:0};
+  const active=G.buildings.filter(b=>b.built>=1&&!b.failed);
+  for(const b of active){
+    const d=B[b.type];
+    if(b.type==='solar')gen+=10*daylight()*s.sun*stormF*(1+.1*(eff-1));
+    else if(d.pw>0)gen+=d.pw;
+    else if(d.pw<0)use+=-d.pw;
+    if(d.store)store+=d.store;if(d.cap)cap+=d.cap;if(b.type==='shield')shields++;
+  }
+  cap+=G.outposts.length*4;
+  G.energyCap=store;
+  let frac=1;
+  if(G.energy<=.01&&gen<use)frac=use>0?gen/use:1;
+  for(const b of active){
+    switch(b.type){
+      case 'moxie':prod.o2+=6*frac*eff;break;
+      case 'icedrill':prod.water+=25*s.ice*(1+warm*.4)*frac*eff;break;
+      case 'recycler':prod.water+=8*frac*eff;break;
+      case 'greenhouse':prod.food+=3*(1+warm*.5+press*.3)*frac*eff;prod.o2+=1.5*frac;prod.water-=4*frac;break;
+      case 'regolith':prod.mat+=6*s.mat*frac*eff;break;
+      case 'lab':prod.research+=2*frac*eff;break;
+    }
+  }
+  for(const o of G.outposts){prod.mat+=4*o.site.mat;prod.research+=1;prod.water+=6*o.site.ice}
+  const need={o2:.84*G.crew,water:3*G.crew,food:G.crew};
+  const prot=Math.min(.9,shields*.15+tf.m/100*.6+press*.2);
+  const radDose=s.rad*(1-prot)*(G.flare>0?10:1);
+  G.rates={gen,use,frac,cap,prod,need,prot,radDose,eff,shields};
+  return G.rates;
+}
+
+/* ================= SIM STEP (1 Martian hour) ================= */
+function step(){
+  if(!G||G.over)return;
+  const R=computeRates();
+  // energy
+  G.energy=clamp(G.energy+(R.gen-R.use),0,G.energyCap);
+  const k=1/24;
+  G.o2=Math.max(0,G.o2+(R.prod.o2-R.need.o2)*k);
+  G.water=Math.max(0,G.water+(R.prod.water-R.need.water)*k);
+  G.food=Math.max(0,G.food+(R.prod.food-R.need.food)*k);
+  G.mat+=R.prod.mat*k;
+  const res=R.prod.research*k;G.research+=res;
+  // blueprints → demo credit rewards (flywheel step 3/4)
+  G.credits+=res*1.5;G.rewards+=res*1.5;
+  // health
+  let dmg=R.radDose*.25*k;
+  if(G.o2<=0)dmg+=6;if(G.water<=0)dmg+=1.2;if(G.food<=0)dmg+=.5;
+  if(dmg<.05)G.health=Math.min(100,G.health+.35);else G.health-=dmg;
+  if(G.health<=0){G.crew--;G.lost++;G.health=60;logMsg('A crew member was lost. Fix life support now.','bad');if(G.crew<=0)return endGame(false)}
+  // terraforming
+  const tf=G.tf;let active=0;
+  [['p','tp',8],['t','tt',.25],['m','tm',.4]].forEach(([c,t,r])=>{if(Math.abs(tf[c]-tf[t])>.01&&G.research>.05){tf[c]+=clamp(tf[t]-tf[c],-r,r);active++}});
+  if(active){G.research=Math.max(0,G.research-.12*active)}
+  // time
+  G.hour++;G.step++;
+  if(G.hour>=24){G.hour=0;newSol()}
+  if(G.flare>0&&G.hour%24===0)G.flare=0;
+  // AI planning every 6 hours
+  if(G.agents.length&&G.auto&&G.step%6===0)aiPlan();
+  // queue
+  if(G.queue.length){const a=G.agents.find(x=>!x.task);if(a){const b=G.queue.shift();a.task={kind:'build',b}}}
+  // instant construction (no agents): builds rise in 3 hours
+  G.buildings.forEach(b=>{if(b.built<1&&!b.waiting){b.built=Math.min(1,b.built+.34);if(b.built>=1)logMsg(B[b.type].name+' online.')}});
+  G.peak=Math.max(G.peak,score());
+  updateHUD();
+}
+function newSol(){
+  G.sol++;
+  if(G.storm>0){G.storm--;if(!G.storm){logMsg('Dust storm has cleared. Solar output restored.','good');stormVisual(false)}}
+  // random events
+  const r=Math.random();
+  if(G.sol>3){
+    if(r<.06&&!G.storm)startStorm(2+Math.floor(Math.random()*4));
+    else if(r<.09)startFlare();
+    else if(r<.17)failRandom();
+  }
+  // supply ship
+  if(G.sol>=G.nextShip){
+    G.nextShip=G.sol+8;
+    const R=G.rates,ok=G.food>G.crew*4&&G.o2>G.crew*2&&R.cap-G.crew>=2;
+    supplyShip(ok);
+  }
+  if(G.sol%5===0)saveRunSnapshot();
+}
+function score(){
+  if(!G)return 0;const R=G.rates;if(!R.need)return 0;
+  const ss=selfSuff();
+  const tfp=((G.tf.p-6)/994+(G.tf.t+63)/78+G.tf.m/100)/3;
+  return Math.round(G.sol*10+G.crew*60+G.research*3+G.outposts.length*250+ss*3+tfp*500-G.lost*40);
+}
+function selfSuff(){
+  const R=G.rates;if(!R.need)return 0;
+  const f=(p,n)=>n>0?clamp(p/n,0,1):1;
+  const pw=R.use>0?clamp((R.gen+(G.unlocks.nuclear?0:0))/R.use,0,1):1;
+  const solarAvg=G.buildings.filter(b=>b.type==='solar'&&b.built>=1&&!b.failed).length*10/Math.PI*G.site.sun+G.buildings.filter(b=>b.type==='nuclear'&&b.built>=1).length*10;
+  const pwr=R.use>0?clamp(solarAvg/R.use,0,1):1;
+  return Math.round(100*Math.min(f(R.prod.o2,R.need.o2),f(R.prod.water,R.need.water),f(R.prod.food,R.need.food),pwr));
+}
+
+/* ================= EVENTS ================= */
+function startStorm(n){G.storm=n;logMsg('Regional dust storm for ~'+n+' sols. Solar output down 80%. Batteries and fission keep you alive.','bad');stormVisual(true)}
+function stormVisual(on){$('#stormTint').style.opacity=on?1:0}
+function startFlare(){G.flare=1;logMsg('Solar particle event. Radiation ×10 for the rest of the sol. Berms, lava tubes and shielding help.','bad');const f=$('#flash');f.style.opacity=.7;setTimeout(()=>f.style.opacity=0,250)}
+function failRandom(){
+  const c=G.buildings.filter(b=>b.built>=1&&!b.failed&&!['pad','shield'].includes(b.type));if(!c.length)return;
+  const b=c[Math.floor(Math.random()*c.length)];failBuilding(b);
+}
+function failBuilding(b){
+  b.failed=true;setFailLook(b,true);
+  logMsg(B[b.type].name+' failed. '+(G.agents.length?'Dispatching an engineer.':'Select it on the map to repair (5 t).'),'bad');
+  const a=G.agents.find(x=>!x.task);if(a)a.task={kind:'repair',b};
+}
+function setFailLook(b,on){b.mesh.traverse(o=>{if(o.isMesh&&o.material!==M.frame){if(on){o.userData.m=o.material;o.material=M.fail}else if(o.userData.m){o.material=o.userData.m}}})}
+function repair(b){if(!b.failed)return;b.failed=false;setFailLook(b,false);logMsg(B[b.type].name+' repaired.','good')}
+function supplyShip(ok){
+  const pad=G.buildings.find(b=>b.type==='pad');if(!pad)return;
+  const rocket=pad.mesh.getObjectByName('rocket');
+  anims.push({t:0,dur:9,update(t){const k=t/this.dur;let y;if(k<.35)y=(1-k/.35)**2*90;else if(k<.65)y=0;else y=((k-.65)/.35)**2*90;rocket.position.y=y;return k>=1},end(){rocket.position.y=0}});
+  if(ok){G.crew+=2;G.arrivals+=2;G.mat+=40;logMsg('Supply ship landed: 2 new crew and 40 t of material.','good')}
+  else{G.mat+=40;logMsg('Supply ship delivered 40 t of material. No new crew: they need 2 free beds and food and O₂ reserves.','')}
+}
+
+/* ================= AI ENGINEERS ================= */
+function makeRover(){
+  const g=new THREE.Group();
+  const body=new THREE.Mesh(new THREE.BoxGeometry(1.6,.7,1),M.ivory);body.position.y=.75;g.add(body);
+  const top=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,.5),M.glow);top.position.set(-.3,1.3,0);g.add(top);
+  const mast=new THREE.Mesh(new THREE.BoxGeometry(.12,.8,.12),M.dark);mast.position.set(.5,1.4,0);g.add(mast);
+  for(const x of[-.6,.6])for(const z of[-.6,.6]){const w=new THREE.Mesh(new THREE.CylinderGeometry(.32,.32,.25,8),M.dark);w.rotation.x=Math.PI/2;w.position.set(x,.32,z);g.add(w)}
+  g.traverse(o=>o.castShadow=true);return g;
+}
+const AGENT_NAMES=['ENG-01 Atlas','ENG-02 Vesta','ENG-03 Kepler','ENG-04 Sagan','ENG-05 Tharsis','ENG-06 Noctis'];
+function deployAgent(){
+  if(G.agents.length>=6)return;
+  if(!spend(25,'Deploy AI engineer'))return;
+  const m=makeRover(),p=cellPos(-2,-1);m.position.set(p.x,H(p.x,p.z),p.z);agentGroup.add(m);
+  const a={name:AGENT_NAMES[G.agents.length],mesh:m,task:null,target:null,work:0};
+  G.agents.push(a);logMsg(a.name+' deployed. Autonomous planning '+(G.auto?'on':'off')+'.','ai');renderPane();
+}
+function spend(n,what){
+  if(G.credits<n){logMsg('Not enough demo $COLONIZE for '+what+' ('+n+' needed). Labs earn more over time.','bad');return false}
+  G.credits-=n;G.spent+=n;G.pool+=n*.1;updateHUD();return true;
+}
+function aiPlan(){
+  const R=computeRates(),a=G.agents[0];
+  const solarAvg=G.buildings.filter(b=>b.type==='solar'&&!b.failed).length*10/Math.PI*G.site.sun;
+  const pending=G.buildings.filter(b=>b.built<1).length;if(pending>1)return;
+  let pick=null,why='';
+  const net=(k)=>R.prod[k]-R.need[k];
+  if(net('o2')<.2){pick='moxie';why='O₂ balance '+fmt(net('o2'),1)+' kg/sol'}
+  else if(net('water')<.5){pick=G.site.ice>=.7?'icedrill':'recycler';why='water balance '+fmt(net('water'),1)+' L/sol'}
+  else if(net('food')<.2){pick='greenhouse';why='food balance '+fmt(net('food'),1)+' rations/sol'}
+  else if(solarAvg+G.buildings.filter(b=>b.type==='nuclear').length*10<R.use*1.15){pick=(G.unlocks.nuclear&&G.mat>=70)?'nuclear':'solar';why='average power '+fmt(solarAvg,1)+' kW vs '+fmt(R.use,1)+' kW load'}
+  else if(G.energyCap<R.use*13){pick='battery';why='night reserve under 13 h'}
+  else if(R.cap-G.crew<2){pick='hab';why='no free beds for next ship'}
+  else if(R.radDose>.6&&R.shields<3){pick='shield';why='radiation dose high'}
+  else if(G.buildings.filter(b=>b.type==='regolith').length<2){pick='regolith';why='material throughput low'}
+  else if(G.buildings.filter(b=>b.type==='lab').length<3){pick='lab';why='research capacity'}
+  if(!pick)return;
+  if(!canAfford(pick)){if(pick!=='regolith'&&canAfford('regolith')&&!G.buildings.some(b=>b.type==='regolith'&&b.built<1)){requestBuild('regolith',undefined,undefined,(a?a.name:'AI')+': short on material for '+B[pick].name+', building a regolith plant first.')}return}
+  requestBuild(pick,undefined,undefined,(a?a.name:'AI')+': '+why+' → building '+B[pick].name+'.');
+}
+function updateAgents(dt){
+  for(const a of G.agents){
+    const m=a.mesh;
+    if(a.task){
+      const b=a.task.b;const tp=b.mesh.position;
+      const dx=tp.x+2.8-m.position.x,dz=tp.z+2.8-m.position.z,d=Math.hypot(dx,dz);
+      if(d>.6){const sp=Math.min(d,14*dt*Math.min(G.speed,4));m.position.x+=dx/d*sp;m.position.z+=dz/d*sp;m.rotation.y=Math.atan2(-dz,dx)}
+      else{
+        a.work+=dt*Math.max(G.speed,.0001)*(G.speed?1:0);
+        if(a.task.kind==='build'){b.built=Math.min(1,b.built+dt*.45*G.speed);if(b.built>=1){b.waiting=false;logMsg(a.name+' finished '+B[b.type].name+'.','ai');a.task=null;a.work=0}}
+        else if(a.task.kind==='repair'&&a.work>2.5){repair(b);a.task=null;a.work=0}
+      }
+    }else{
+      if(!a.target||Math.hypot(a.target.x-m.position.x,a.target.z-m.position.z)<1){const bs=G.buildings;const t=bs[Math.floor(Math.random()*bs.length)].mesh.position;a.target={x:t.x+(Math.random()-.5)*8,z:t.z+(Math.random()-.5)*8}}
+      if(G.speed){const dx=a.target.x-m.position.x,dz=a.target.z-m.position.z,d=Math.hypot(dx,dz)||1;const sp=Math.min(d,5*dt*G.speed);m.position.x+=dx/d*sp;m.position.z+=dz/d*sp;m.rotation.y=Math.atan2(-dz,dx)}
+      const f=G.buildings.find(b=>b.failed&&!G.agents.some(x=>x.task&&x.task.b===b));if(f)a.task={kind:'repair',b:f};
+    }
+    m.position.y=H(m.position.x,m.position.z);
+  }
+}
+
+/* ================= EXPANSION ================= */
+function foundOutpost(site){
+  if(G.outposts.some(o=>o.site===site)||site===G.site)return;
+  if(G.crew<8){logMsg('An outpost needs at least 8 crew in the main colony.','bad');return}
+  if(G.mat<80){logMsg('An outpost needs 80 t of material.','bad');return}
+  if(!spend(30,'Found outpost'))return;
+  G.mat-=80;G.crew-=2;
+  const m=makeMesh('outpost');m.position.set(site.x,site.base,site.z);m.scale.setScalar(.01);buildingsGroup.add(m);
+  const o={site,mesh:m,grow:0};G.outposts.push(o);site.beacon.visible=false;
+  // road
+  const pts=[];const N=80;for(let i=0;i<=N;i++){const x=lerp(G.site.x,site.x,i/N),z=lerp(G.site.z,site.z,i/N);pts.push(new THREE.Vector3(x,H(x,z)+.5,z))}
+  const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),new THREE.LineBasicMaterial({color:'#FFE1B8'}));roadGroup.add(line);
+  anims.push({t:0,dur:3,update(t){m.scale.setScalar(Math.max(.01,Math.min(1,t/3)));return t>=3}});
+  logMsg('Outpost founded at '+site.name+'. Two crew transferred; supply road surveyed.','good');renderPane();
+}
+
+/* ================= HUD ================= */
+function rateSpan(v,d){return '<span class="'+(v>=0?'pos':'neg')+'">'+(v>=0?'+':'')+fmt(v,d||1)+'</span>'}
+function updateHUD(){
+  if(!G)return;const R=G.rates.need?G.rates:computeRates();
+  const days=(v,n)=>n>0?v/n:99;
+  const cell=(lbl,val,sub,warn)=>'<div class="res px'+(warn?' warn':'')+'"><small>'+lbl+'</small><b>'+val+'</b><small>'+sub+'</small></div>';
+  const oN=R.prod.o2-R.need.o2,wN=R.prod.water-R.need.water,fN=R.prod.food-R.need.food;
+  $('#hud').innerHTML=
+    cell('Crew',G.crew+' / '+R.cap,'health '+Math.round(G.health)+'%',G.health<50)+
+    cell('Power',fmt(R.gen,1)+' kW','load '+fmt(R.use,1)+(R.frac<1?' · brownout':''),R.frac<1)+
+    cell('Battery',fmt(G.energy)+' kWh','of '+fmt(G.energyCap),G.energy<5)+
+    cell('Oxygen',fmt(G.o2)+' kg',rateSpan(oN)+'/sol',days(G.o2,-oN)<4&&oN<0)+
+    cell('Water',fmt(G.water)+' L',rateSpan(wN)+'/sol',days(G.water,-wN)<4&&wN<0)+
+    cell('Food',fmt(G.food)+' rations',rateSpan(fN)+'/sol',days(G.food,-fN)<4&&fN<0)+
+    cell('Material',fmt(G.mat)+' t',rateSpan(R.prod.mat)+'/sol')+
+    cell('Research',fmt(G.research,1),rateSpan(R.prod.research)+'/sol')+
+    cell('$COLONIZE',fmt(G.credits),'demo credits')+
+    cell('Score',score().toLocaleString(),'self-sufficiency '+selfSuff()+'%');
+  $('#clock').textContent='Sol '+G.sol+' · '+String(G.hour).padStart(2,'0')+':00'+(G.storm?' · storm':'');
+  refreshPaneNumbers();
+}
+
+/* ================= SIDE PANEL ================= */
+let tab='build',buildType=null,selected=null;
+document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+function setTab(t){tab=t;document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===t));if(t!=='build')setBuild(null);renderPane()}
+function setBuild(t){buildType=t;canvas.classList.toggle('building',!!t);if(ghost){scene.remove(ghost);ghost=null}if(t&&THREE_OK){ghost=makeMesh(t);ghost.traverse(o=>{if(o.isMesh){o.material=M.ghostOk;o.castShadow=false}});ghost.visible=false;scene.add(ghost)}document.querySelectorAll('.bitem').forEach(b=>b.classList.toggle('on',b.dataset.b===t))}
+function sitePicker(){
+  return '<h3>Choose a landing site</h3><p class="hint">Each region trades off resources. The beacon on the map shows the build zone.</p>'+SITES.map(s=>
+    '<div class="sel-card"><b>'+s.name+'</b><p class="hint" style="margin:4px 0 6px">'+s.blurb+'</p>'+
+    '<div class="row"><span>Ice</span><span>×'+s.ice+'</span></div><div class="row"><span>Sunlight</span><span>×'+s.sun+'</span></div><div class="row"><span>Building material</span><span>×'+s.mat+'</span></div><div class="row"><span>Radiation</span><span>×'+s.rad+'</span></div>'+
+    '<button class="btn px small" type="button" data-land="'+s.id+'" style="margin-top:8px">Land here</button> <button class="btn px small ghost" style="color:#F3E9D6" type="button" data-look="'+s.id+'">Fly over</button></div>').join('');
+}
+function renderPane(){
+  const p=$('#pane');
+  if(!G){p.innerHTML=sitePicker();bindSiteButtons();return}
+  let h='';
+  if(tab==='build'){
+    h+='<h3>AI colony architect</h3><p class="hint">Describe what you want in plain language. The architect turns it into a build plan.</p>'+
+      '<form class="prompt" id="archForm"><input id="archIn" aria-label="Describe what to build" placeholder="e.g. add 3 solar arrays and a greenhouse"><button class="btn px small" type="submit">Plan</button></form>'+
+      '<div class="chips"><button type="button" data-p="make the colony self-sufficient">Make it self-sufficient</button><button type="button" data-p="prepare for a dust storm">Prepare for a dust storm</button><button type="button" data-p="two greenhouses and a water recycler">Two greenhouses and a recycler</button></div>'+
+      '<h3>Place by hand</h3><p class="hint">Pick a module, then click inside the ring. Press Esc to stop placing.</p><div class="blist">'+
+      Object.keys(B).filter(k=>!B[k].hidden).map(k=>'<button type="button" class="bitem'+(buildType===k?' on':'')+'" data-b="'+k+'"'+(locked(k)?' disabled title="Unlock in Engineers"':'')+'><b>'+B[k].name+'</b><small>'+B[k].cost+' t · '+B[k].desc+(locked(k)?' · locked':'')+'</small></button>').join('')+'</div>'+
+      '<div id="selBox"></div>';
+  }else if(tab==='agents'){
+    h+='<h3>Autonomous engineering agents</h3><p class="hint">Engineers read colony telemetry, build whatever is short, repair failures and add 8% output each (up to 4).</p>'+
+      '<button class="btn px small" type="button" id="depBtn">Deploy engineer · 25 $COLONIZE</button>'+
+      '<label style="display:flex;gap:8px;align-items:center;margin:10px 0;font-size:14px"><input type="checkbox" id="autoChk" '+(G.auto?'checked':'')+'> Autonomous planning</label>'+
+      '<div id="agentList"></div>'+
+      '<h3 style="margin-top:16px">Infrastructure modules</h3>'+
+      '<div class="sel-card"><b>Fission reactor</b><p class="hint" style="margin:4px 0 6px">A 10 kW reactor that ignores night and dust. Unlocks the module for building.</p>'+(G.unlocks.nuclear?'<span style="color:#5CC08E">Unlocked</span>':'<button class="btn px small" type="button" data-unlock="nuclear">Unlock · 40 $COLONIZE</button>')+'</div>'+
+      '<div class="sel-card"><b>Terraforming lab</b><p class="hint" style="margin:4px 0 6px">Long-horizon planetary engineering experiments.</p>'+(G.unlocks.terra?'<span style="color:#5CC08E">Unlocked</span>':'<button class="btn px small" type="button" data-unlock="terra">Unlock · 40 $COLONIZE</button>')+'</div>'+
+      flyBox();
+  }else if(tab==='terra'){
+    if(!G.unlocks.terra){h+='<h3>Terraforming laboratory</h3><p class="hint">Run hypothetical experiments in atmospheric thickening, warming and an L1 magnetic shield. Unlock the lab first.</p><button class="btn px small" type="button" data-unlock="terra">Unlock · 40 $COLONIZE</button>'}
+    else{
+      const tf=G.tf;
+      h+='<h3>Terraforming laboratory</h3><p class="hint">Set targets. Each active experiment consumes research every hour. These effects are hypothetical and compressed from centuries to sols.</p>'+
+      slider('tp','Surface pressure',6,1000,1,tf.tp,' mbar','p')+slider('tt','Mean temperature',-63,15,1,tf.tt,' °C','t')+slider('tm','L1 magnetic shield',0,100,1,tf.tm,'%','m')+
+      '<div class="row"><span>Greenhouse yield</span><span id="tfG"></span></div><div class="row"><span>Radiation protection</span><span id="tfR"></span></div><div class="row"><span>Ice drill yield</span><span id="tfI"></span></div>';
+    }
+  }else if(tab==='stress'){
+    h+='<h3>Colony survival simulator</h3><p class="hint">Random events happen on their own after sol 3. Trigger one on purpose to test resilience: survive 3 sols with all crew and earn 15 research.</p>'+
+    '<button class="btn px small" type="button" data-ev="storm">Dust storm · 10</button><button class="btn px small" type="button" data-ev="flare">Solar flare · 10</button><button class="btn px small" type="button" data-ev="fail">Equipment failure · 10</button><button class="btn px small" type="button" data-ev="cascade">Cascade: all three · 25</button>'+
+    '<div class="row" style="margin-top:12px"><span>Radiation dose</span><span id="stRad"></span></div><div class="row"><span>Night reserve</span><span id="stNight"></span></div><div class="row"><span>Self-sufficiency</span><span id="stSelf"></span></div><div class="row"><span>Crew lost</span><span id="stLost"></span></div>'+
+    '<h3 style="margin-top:16px">Submit this run</h3><p class="hint">Post your current score to the leaderboard.</p><button class="btn px small" type="button" id="subBtn">Submit to leaderboard</button>';
+  }else if(tab==='expand'){
+    h+='<h3>Autonomous expansion engine</h3><p class="hint">Found outposts at the other candidate sites. Each one adds material, water, research and 4 beds, and raises your score. Costs 80 t, 30 $COLONIZE and 2 crew (needs 8 crew).</p>'+
+      SITES.filter(s=>s!==G.site).map(s=>{const done=G.outposts.some(o=>o.site===s);return '<div class="sel-card"><b>'+s.name+'</b><p class="hint" style="margin:4px 0 6px">'+Math.round(Math.hypot(s.x-G.site.x,s.z-G.site.z)*2.5)+' km away · ice ×'+s.ice+' · material ×'+s.mat+'</p>'+(done?'<span style="color:#5CC08E">Outpost running</span>':'<button class="btn px small" type="button" data-out="'+s.id+'">Found outpost</button>')+' <button class="btn px small ghost" style="color:#F3E9D6" type="button" data-look="'+s.id+'">Look</button></div>'}).join('')+
+      '<button class="btn px small ghost" style="color:#F3E9D6;margin-top:8px" type="button" id="aiExp">Ask the AI where to expand</button>';
+  }
+  p.innerHTML=h;bindPane();refreshPaneNumbers();
+}
+function slider(id,label,min,max,st,val,unit,cur){return '<div class="slider"><label for="'+id+'"><span>'+label+'</span><span><span id="'+id+'C"></span> → <span id="'+id+'V">'+val+'</span>'+unit+'</span></label><input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="'+st+'" value="'+val+'"><div class="meter"><i id="'+id+'M"></i></div></div>'}
+function flyBox(){return '<div class="flybox"><h4>Flywheel in this run</h4><div class="row"><span>Demo credits spent</span><span id="fbS"></span></div><div class="row"><span>10% to buyback pool</span><span id="fbP"></span></div><div class="row"><span>Earned from research</span><span id="fbR"></span></div></div>'}
+function refreshPaneNumbers(){
+  if(!G)return;const R=G.rates;if(!R.need)return;
+  const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};
+  set('fbS',fmt(G.spent));set('fbP',fmt(G.pool,1));set('fbR',fmt(G.rewards,1));
+  const al=$('#agentList');if(al)al.innerHTML=G.agents.length?G.agents.map(a=>'<div class="row"><span>'+a.name+'</span><span>'+(a.task?(a.task.kind==='build'?'Building '+B[a.task.b.type].name:'Repairing '+B[a.task.b.type].name):'Surveying')+'</span></div>').join(''):'<p class="hint">No engineers yet. Deploy one to automate the colony.</p>';
+  const tf=G.tf;
+  [['tp','p',6,1000],['tt','t',-63,15],['tm','m',0,100]].forEach(([id,c,a,b])=>{set(id+'C',Math.round(tf[c]));const m=document.getElementById(id+'M');if(m)m.style.width=(100*(tf[c]-a)/(b-a))+'%'});
+  const warm=clamp((tf.t+63)/78,0,1),press=clamp((tf.p-6)/994,0,1);
+  set('tfG','+'+Math.round((warm*.5+press*.3)*100)+'%');set('tfR',Math.round(R.prot*100)+'%');set('tfI','+'+Math.round(warm*40)+'%');
+  set('stRad',fmt(R.radDose,2)+'× baseline');set('stNight',fmt(R.use>0?G.energyCap/R.use:99,1)+' h at full load');set('stSelf',selfSuff()+'%');set('stLost',G.lost);
+  const sb=$('#selBox');if(sb&&selected)renderSel();
+}
+function renderSel(){
+  const sb=$('#selBox');if(!sb)return;
+  if(!selected){sb.innerHTML='';return}
+  const b=selected,d=B[b.type];
+  sb.innerHTML='<div class="sel-card"><b>'+d.name+'</b><p class="hint" style="margin:4px 0 6px">'+d.desc+'</p><div class="row"><span>Status</span><span>'+(b.failed?'Failed':b.built<1?'Under construction '+Math.round(b.built*100)+'%':'Online')+'</span></div>'+
+  (b.failed?'<button class="btn px small" type="button" id="repBtn">Repair · 5 t</button>':'')+(b.type!=='pad'?'<button class="btn px small ghost" style="color:#F3E9D6" type="button" id="demBtn">Demolish (refund half)</button>':'')+'</div>';
+  const rb=$('#repBtn');if(rb)rb.onclick=()=>{if(G.mat<5)return logMsg('Need 5 t of material to repair.','bad');G.mat-=5;repair(b);renderSel();updateHUD()};
+  const db=$('#demBtn');if(db)db.onclick=()=>{G.mat+=Math.floor(d.cost/2);buildingsGroup.remove(b.mesh);G.buildings=G.buildings.filter(x=>x!==b);G.agents.forEach(a=>{if(a.task&&a.task.b===b)a.task=null});G.queue=G.queue.filter(x=>x!==b);selected=null;renderSel();updateHUD();logMsg(d.name+' demolished.')};
+}
+function bindSiteButtons(){
+  document.querySelectorAll('[data-land]').forEach(b=>b.onclick=()=>land(SITES.find(s=>s.id===b.dataset.land)));
+  document.querySelectorAll('[data-look]').forEach(b=>b.onclick=()=>{const s=SITES.find(x=>x.id===b.dataset.look);flyTo(s.x,s.base,s.z,110)});
+}
+function bindPane(){
+  bindSiteButtons();
+  document.querySelectorAll('.bitem').forEach(b=>b.onclick=()=>setBuild(buildType===b.dataset.b?null:b.dataset.b));
+  const af=$('#archForm');if(af)af.onsubmit=e=>{e.preventDefault();architect($('#archIn').value);$('#archIn').value=''};
+  document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>architect(b.dataset.p));
+  const dp=$('#depBtn');if(dp){dp.onclick=deployAgent;dp.disabled=G.agents.length>=6}
+  const ac=$('#autoChk');if(ac)ac.onchange=()=>{G.auto=ac.checked;logMsg('Autonomous planning '+(G.auto?'on':'off')+'.','ai')};
+  document.querySelectorAll('[data-unlock]').forEach(b=>b.onclick=()=>{const k=b.dataset.unlock;if(spend(40,'unlock')){G.unlocks[k]=true;logMsg((k==='nuclear'?'Fission reactor module':'Terraforming lab')+' unlocked.','good');renderPane()}});
+  ['tp','tt','tm'].forEach(id=>{const e=document.getElementById(id);if(e)e.oninput=()=>{G.tf[id]=+e.value;document.getElementById(id+'V').textContent=e.value}});
+  document.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>stressTest(b.dataset.ev));
+  document.querySelectorAll('[data-out]').forEach(b=>b.onclick=()=>foundOutpost(SITES.find(s=>s.id===b.dataset.out)));
+  const ae=$('#aiExp');if(ae)ae.onclick=()=>{const c=SITES.filter(s=>s!==G.site&&!G.outposts.some(o=>o.site===s));if(!c.length)return logMsg('Every candidate site already has an outpost.','ai');
+    const need=G.rates.prod.water<G.rates.need.water?'ice':'mat';const best=c.sort((a,b)=>b[need]-a[need])[0];logMsg('Expansion engine: '+best.name+' scores best for '+(need==='ice'?'water':'building material')+'. '+(G.crew<8?'Grow to 8 crew first.':'Ready to found.'),'ai');flyTo(best.x,best.base,best.z,110)};
+  const sb=$('#subBtn');if(sb)sb.onclick=()=>submitRun(false);
+  renderSel();
+}
+function stressTest(k){
+  const cost=k==='cascade'?25:10;if(!spend(cost,'stress test'))return;
+  if(k==='storm'||k==='cascade')startStorm(3);
+  if(k==='flare'||k==='cascade')startFlare();
+  if(k==='fail'||k==='cascade'){failRandom();if(k==='cascade')failRandom()}
+  const crew=G.crew+G.lost,lost0=G.lost,until=G.sol+3;
+  watchers.push(()=>{if(G.sol<until)return false;if(G.lost===lost0){G.research+=15;logMsg('Stress test passed with no crew lost. +15 research.','good')}else logMsg('Stress test failed: '+(G.lost-lost0)+' crew lost.','bad');return true});
+}
+const watchers=[];
+
+/* ================= ARCHITECT (natural language) ================= */
+const NUMW={a:1,an:1,one:1,single:1,two:2,pair:2,couple:2,three:3,few:3,four:4,five:5,six:6,several:3};
+const KW=[['solar','solar'],['panel','solar'],['array','solar'],['nuclear','nuclear'],['reactor','nuclear'],['fission','nuclear'],['kilopower','nuclear'],['batter','battery'],['storage','battery'],['greenhouse','greenhouse'],['farm','greenhouse'],['crop','greenhouse'],['oxygen','moxie'],['moxie','moxie'],['o2','moxie'],['ice','icedrill'],['drill','icedrill'],['recycl','recycler'],['regolith','regolith'],['mine','regolith'],['mining','regolith'],['material','regolith'],['habitat','hab'],['hab','hab'],['dome','hab'],['housing','hab'],['bed','hab'],['lab','lab'],['research','lab'],['shield','shield'],['berm','shield'],['radiation','shield']];
+function architect(text){
+  if(!G||G.over)return;text=(text||'').toLowerCase().trim();if(!text)return;
+  const toks=text.replace(/[^a-z0-9₂ ]/g,' ').split(/\s+/);
+  const plan=[];
+  toks.forEach((t,i)=>{
+    const kw=KW.find(([k])=>t.startsWith(k));if(!kw)return;
+    if(kw[0]==='water'&&toks[i+1]&&toks[i+1].startsWith('recycl'))return;
+    let n=1;for(let j=i-1;j>=Math.max(0,i-3);j--){const w=toks[j];if(/^\d+$/.test(w)){n=+w;break}if(NUMW[w]){n=NUMW[w];break}}
+    n=clamp(n,1,8);const prev=plan.find(p=>p.t===kw[1]);if(prev)prev.n=Math.max(prev.n,n);else plan.push({t:kw[1],n});
+  });
+  if(!plan.length&&/water/.test(text))plan.push({t:G.site.ice>=.7?'icedrill':'recycler',n:1});
+  if(!plan.length&&/power|energy|electric/.test(text))plan.push({t:'solar',n:2},{t:'battery',n:1});
+  if(!plan.length&&/food|eat/.test(text))plan.push({t:'greenhouse',n:1});
+  if(/storm|dust/.test(text)){plan.length=0;plan.push({t:'battery',n:2});plan.push({t:G.unlocks.nuclear?'nuclear':'solar',n:G.unlocks.nuclear?1:2})}
+  if(/self.?suff|balanc|optimi|surviv|sustain/.test(text)&&!plan.length){
+    const R=computeRates();
+    const need=(p,n,per)=>Math.max(0,Math.ceil((n-p)/per));
+    const o=need(R.prod.o2,R.need.o2+1,6),w=need(R.prod.water,R.need.water+2,G.site.ice>=.7?25*G.site.ice:8),f=need(R.prod.food,R.need.food+.5,3);
+    if(o)plan.push({t:'moxie',n:o});if(w)plan.push({t:G.site.ice>=.7?'icedrill':'recycler',n:w});if(f)plan.push({t:'greenhouse',n:f});
+    const load=R.use+o*2.5+w*2+f*3,avg=G.buildings.filter(b=>b.type==='solar').length*10/Math.PI*G.site.sun;
+    const sp=Math.max(0,Math.ceil((load*1.15-avg)/(10/Math.PI*G.site.sun)));if(sp)plan.push({t:'solar',n:sp});
+    plan.push({t:'battery',n:1});
+  }
+  if(!plan.length){logMsg('Architect: I could not find modules in "'+text+'". Try naming things like solar, greenhouse, ice drill, habitat or battery.','ai');return}
+  const total=plan.reduce((s,p)=>s+B[p.t].cost*p.n,0);
+  logMsg('Architect plan: '+plan.map(p=>p.n+'× '+B[p.t].name).join(', ')+' ('+total+' t).','ai');
+  let built=0;for(const p of plan)for(let i=0;i<p.n;i++){if(requestBuild(p.t))built++;else break}
+  if(built<plan.reduce((s,p)=>s+p.n,0))logMsg('Architect: placed '+built+' modules; the rest wait on material or unlocks.','ai');
+}
+
+/* ================= LAND / END ================= */
+function land(site){$('#startOv').hidden=true;newGame(site);setTab('build')}
+function endGame(won){
+  G.over=true;saveRunSnapshot();
+  $('#endCard').innerHTML='<h3>Colony lost</h3><p>The last crew member at '+G.site.name+' died on sol '+G.sol+'. Peak score '+G.peak.toLocaleString()+'.</p><p>Common causes: no oxygen plant, no night power, or ignoring a failed module.</p><button class="btn px" type="button" id="subEnd">Submit to leaderboard</button> <button class="btn px ghost" style="color:#F3E9D6" type="button" id="againBtn">Start a new colony</button>';
+  $('#endOv').hidden=false;
+  $('#subEnd').onclick=()=>submitRun(true);
+  $('#againBtn').onclick=restart;
+}
+function restart(){
+  $('#endOv').hidden=true;watchers.length=0;anims.length=0;G=null;buildingsGroup.clear();agentGroup.clear();roadGroup.clear();setBuild(null);selected=null;
+  SITES.forEach(s=>{s.beacon.visible=true;s.beam.material.opacity=.35});stormVisual(false);
+  $('#hud').hidden=true;$('#timebar').hidden=true;flyTo(0,0,0,340);renderPane();
+}
+
+/* ================= LEADERBOARD ================= */
+const RIVALS=[
+  {name:'Hellas Basin Collective',site:'Hellas Planitia',score:4820,sols:212},
+  {name:'Utopia Ice Works',site:'Utopia Planitia',score:3975,sols:180},
+  {name:'Gale Station',site:'Gale Crater',score:2640,sols:131},
+  {name:'Olympus Ridge',site:'Olympus Mons',score:1510,sols:77}
+];
+function saveRunSnapshot(){if(!G)return;const cur=store.get('colonize-current',null);store.set('colonize-current',{site:G.site.name,score:score(),sols:G.sol})}
+async function submitRun(fromEnd){
+  if(!G)return;
+  const runs=store.get('colonize-runs',[]);
+  const entry={name:Wallet.pubkey?short(Wallet.pubkey):'Unnamed commander',wallet:Wallet.pubkey||null,site:G.site.name,score:fromEnd?G.peak:score(),sols:G.sol,crew:G.crew,outposts:G.outposts.length,signed:false,date:Date.now()};
+  if(Wallet.provider&&Wallet.provider.signMessage&&!Wallet.demo){
+    try{const msg='Colonize colony report\nSite: '+entry.site+'\nScore: '+entry.score+'\nSols: '+entry.sols+'\nTime: '+new Date(entry.date).toISOString();
+      const sig=await Wallet.provider.signMessage(new TextEncoder().encode(msg),'utf8');entry.signed=!!sig;}catch(e){logMsg('Signature skipped; run saved unsigned.','')}
+  }
+  runs.push(entry);runs.sort((a,b)=>b.score-a.score);store.set('colonize-runs',runs.slice(0,20));
+  logMsg('Run submitted: '+entry.score.toLocaleString()+' points'+(entry.signed?', signed by your wallet.':'.'),'good');
+  renderLB(entry.date);document.getElementById('leaderboard').scrollIntoView();
+}
+function renderLB(mark){
+  const runs=store.get('colonize-runs',[]).map(r=>Object.assign({mine:true},r));
+  const all=runs.concat(RIVALS.map(r=>Object.assign({sim:true},r))).sort((a,b)=>b.score-a.score);
+  $('#lbTable').innerHTML='<thead><tr><th>Rank</th><th>Colony</th><th>Site</th><th class="num">Sols</th><th class="num">Score</th></tr></thead><tbody>'+
+    all.map((r,i)=>'<tr class="'+(r.date&&r.date===mark?'you':'')+'"><td>'+(i+1)+'</td><td>'+r.name+(r.sim?' <span class="tagx">simulated</span>':'')+(r.signed?' <span class="signed">signed</span>':'')+(r.wallet&&r.wallet===Wallet.pubkey?' <span class="tagx">you</span>':'')+'</td><td>'+r.site+'</td><td class="num">'+r.sols+'</td><td class="num">'+r.score.toLocaleString()+'</td></tr>').join('')+'</tbody>';
+}
+renderLB();
+
+/* ================= SYSTEMS LIST ================= */
+const ICON={
+ twin:'<path d="M4 16h4v-4h4v-4h8v4h4v4h4v4H4z M10 20h4v4h-4z" />',
+ arch:'<path d="M6 22h20v4H6z M8 18h16v4H8z M10 14h12v4H10z M13 10h6v4h-6z"/>',
+ agent:'<path d="M6 18h16v6H6z M8 26h3v2H8z M17 26h3v2h-3z M10 12h4v6h-4z M20 8h2v10h-2z M22 8h4v2h-4z"/>',
+ terra:'<path d="M12 4h8v4h4v4h4v8h-4v4h-4v4h-8v-4H8v-4H4v-8h4V8h4z" fill-opacity=".35"/><path d="M12 10h4v4h4v4h-4v4h-4z"/>',
+ res:'<path d="M14 4h4v14h-4z M8 18h16v4H8z M6 22h20v6H6z"/>',
+ life:'<path d="M14 14h4v14h-4z M6 6h4v4h4v4h-4v-4H6z M22 6h4v4h-4v4h-4v-4h4z"/>',
+ grid:'<path d="M16 2l-8 16h8l-2 12 10-16h-8l4-12z"/>',
+ surv:'<path d="M4 8h24v4H4z M8 14h20v4H8z M4 20h18v4H4z"/>',
+ exp:'<path d="M6 20h6v6H6z M20 6h6v6h-6z M20 20h6v6h-6z M12 22h8v2h-8z M22 12h2v8h-2z"/>',
+ lb:'<path d="M4 18h6v10H4z M12 10h8v18h-8z M22 14h6v14h-6z"/>'
+};
+const SYSTEMS=[
+ ['twin','Mars digital twin','Explore craters, canyons and lava tubes and compare four candidate landing sites.','build','site'],
+ ['arch','AI colony architect','Describe habitats, greenhouses and power in plain language and get a build plan.','build'],
+ ['agent','Autonomous engineering agents','Rovers that diagnose shortfalls, build fixes and repair failures without you.','agents'],
+ ['terra','Terraforming laboratory','Hypothetical experiments in pressure, temperature and magnetic shielding.','terra'],
+ ['res','Resource extraction','Drill subsurface ice, split CO₂ into oxygen and process regolith into building stock.','build'],
+ ['life','Life support engineering','Close the loop on oxygen, water and food for a growing crew.','build'],
+ ['grid','Martian energy grid','Balance solar, fission and batteries through night and dust.','build'],
+ ['surv','Colony survival simulator','Dust storms, solar flares and equipment failures, random or on demand.','stress'],
+ ['exp','Autonomous expansion engine','Found outposts at other sites and link them with supply roads.','expand'],
+ ['lb','Global colonization leaderboard','Compete for the most efficient, resilient, self-sustaining colony.','lb']
+];
+$('#systemsList').innerHTML=SYSTEMS.map((s,i)=>'<div class="sys"><svg viewBox="0 0 32 32" aria-hidden="true" fill="currentColor" shape-rendering="crispEdges">'+ICON[s[0]]+'</svg><div><h3>'+s[1]+'</h3><p>'+s[2]+'</p></div><button class="btn px small ghost" type="button" data-try="'+i+'">'+(s[3]==='lb'?'View':'Try it')+'</button></div>').join('');
+document.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{
+  const s=SYSTEMS[+b.dataset.try];
+  if(s[3]==='lb'){document.getElementById('leaderboard').scrollIntoView();return}
+  document.getElementById('sim').scrollIntoView();
+  if(!G){$('#startOv').hidden=true;renderPane();return}
+  setTab(s[3]);
+});
+$('#startOvBtn').onclick=()=>{$('#startOv').hidden=true;renderPane()};
+
+/* ================= CAMERA / INPUT ================= */
+function flyTo(x,y,z,r){cam.goal={x,y,z,r}}
+$('#homeBtn').onclick=()=>{if(G)flyTo(G.site.x,G.site.base,G.site.z,80);else flyTo(0,0,0,340)};
+const ptrs=new Map();let downAt=null,lastPinch=0,panMode=false;
+const ray=THREE_OK?new THREE.Raycaster():null,ndc=THREE_OK?new THREE.Vector2():null;let ghost=null,ghostCell=null;
+canvas.addEventListener('contextmenu',e=>e.preventDefault());
+canvas.addEventListener('pointerdown',e=>{canvas.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});downAt={x:e.clientX,y:e.clientY,moved:0};panMode=e.button===2||e.shiftKey;cam.goal=null});
+canvas.addEventListener('pointermove',e=>{
+  const p=ptrs.get(e.pointerId);
+  if(p){
+    const dx=e.clientX-p.x,dy=e.clientY-p.y;p.x=e.clientX;p.y=e.clientY;if(downAt)downAt.moved+=Math.abs(dx)+Math.abs(dy);
+    if(ptrs.size===2){const [a,b]=[...ptrs.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(lastPinch)cam.r=clamp(cam.r*lastPinch/d,20,420);lastPinch=d;if(downAt)downAt.moved=99}
+    else if(panMode){const k=cam.r*.0018,c=Math.cos(cam.theta),sn=Math.sin(cam.theta);cam.target.x+=(-sn*dx-c*dy)*k;cam.target.z+=(c*dx-sn*dy)*k;clampTarget()}
+    else{cam.theta-=dx*.006;cam.phi=clamp(cam.phi-dy*.005,.25,1.45)}
+  }
+  if(buildType&&G)hoverBuild(e);
+});
+function clampTarget(){cam.target.x=clamp(cam.target.x,-S/2,S/2);cam.target.z=clamp(cam.target.z,-S/2,S/2);cam.target.y=H(cam.target.x,cam.target.z)}
+function endPtr(e){
+  ptrs.delete(e.pointerId);if(ptrs.size<2)lastPinch=0;
+  if(downAt&&downAt.moved<6&&e.type==='pointerup')clickAt(e);
+  if(!ptrs.size)downAt=null;
+}
+canvas.addEventListener('pointerup',endPtr);canvas.addEventListener('pointercancel',endPtr);
+canvas.addEventListener('wheel',e=>{e.preventDefault();cam.goal=null;cam.r=clamp(cam.r*Math.exp(e.deltaY*.0012),20,420)},{passive:false});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&buildType)setBuild(null)});
+function pick(e,objs){const r=canvas.getBoundingClientRect();ndc.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(ndc,camera);return ray.intersectObjects(objs,true)[0]}
+function hoverBuild(e){
+  const h=pick(e,[terrain]);if(!h||!ghost){if(ghost)ghost.visible=false;return}
+  const i=Math.round((h.point.x-G.site.x)/CELL),j=Math.round((h.point.z-G.site.z)/CELL);
+  ghostCell={i,j};const p=cellPos(i,j);ghost.position.set(p.x,H(p.x,p.z),p.z);ghost.visible=true;
+  const ok=cellOk(i,j)&&canAfford(buildType);ghost.traverse(o=>{if(o.isMesh)o.material=ok?M.ghostOk:M.ghostBad});
+}
+function clickAt(e){
+  if(!THREE_OK)return;
+  if(!G){const h=pick(e,[terrain]);if(!h)return;const s=SITES.find(s=>Math.hypot(s.x-h.point.x,s.z-h.point.z)<s.r+8);if(s){flyTo(s.x,s.base,s.z,110);highlightSite(s)}return}
+  if(G.over)return;
+  if(buildType){hoverBuild(e);if(ghostCell){if(!cellOk(ghostCell.i,ghostCell.j))return logMsg('That spot is taken or outside the build ring.','bad');requestBuild(buildType,ghostCell.i,ghostCell.j)}return}
+  const h=pick(e,buildingsGroup.children);
+  if(h){let o=h.object;while(o&&!o.userData.b)o=o.parent;selected=o?o.userData.b:null;if(tab!=='build')setTab('build');else renderSel()}
+  else{selected=null;renderSel()}
+}
+function highlightSite(s){if(!G){$('#startOv').hidden=true;renderPane();const c=document.querySelector('[data-land="'+s.id+'"]');if(c){c.closest('.sel-card').scrollIntoView({block:'nearest'});c.focus({preventScroll:true})}}}
+
+/* labels for sites */
+const labelEls={};
+SITES.forEach(s=>{const d=document.createElement('div');d.className='site-label px';d.textContent=s.name;d.onclick=()=>{if(!G){flyTo(s.x,s.base,s.z,110);highlightSite(s)}else{setTab('expand');flyTo(s.x,s.base,s.z,110)}};$('#labels').appendChild(d);labelEls[s.id]=d});
+
+/* ================= LOOP ================= */
+const anims=[];let acc=0,last=performance.now();
+const skyDay=THREE_OK?new THREE.Color('#C9925F'):null,skyBlue=THREE_OK?new THREE.Color('#8FB4D6'):null,skyNight=THREE_OK?new THREE.Color('#1B1110'):null,dusk=THREE_OK?new THREE.Color('#5E7FA8'):null,stormC=THREE_OK?new THREE.Color('#B9763F'):null,tmpC=THREE_OK?new THREE.Color():null;
+function frame(now){
+  const dt=Math.min(.05,(now-last)/1000);last=now;
+  if(G&&!G.over&&G.speed){acc+=dt*G.speed;const stepLen=.5;let n=0;while(acc>=stepLen&&n<10){acc-=stepLen;step();n++;for(let i=watchers.length-1;i>=0;i--)if(G&&watchers[i]())watchers.splice(i,1)}}
+  // camera
+  if(cam.goal){const g=cam.goal;const k=1-Math.pow(.02,dt);cam.target.x=lerp(cam.target.x,g.x,k);cam.target.y=lerp(cam.target.y,g.y,k);cam.target.z=lerp(cam.target.z,g.z,k);cam.r=lerp(cam.r,g.r,k);if(Math.abs(cam.r-g.r)<.5&&Math.abs(cam.target.x-g.x)<.5)cam.goal=null}
+  if(!G&&!cam.goal&&!ptrs.size)cam.theta+=dt*.05;
+  const t=cam.target;camera.position.set(t.x+cam.r*Math.sin(cam.phi)*Math.cos(cam.theta),t.y+cam.r*Math.cos(cam.phi),t.z+cam.r*Math.sin(cam.phi)*Math.sin(cam.theta));
+  const minY=H(camera.position.x,camera.position.z)+3;if(camera.position.y<minY)camera.position.y=minY;
+  camera.lookAt(t);
+  // sun + sky
+  const hr=G?G.hour+acc/.5:9.5,ang=(hr-6)/24*Math.PI*2,dl=Math.max(0,Math.sin(ang));
+  const sd=new THREE.Vector3(Math.cos(ang),Math.max(.05,Math.sin(ang)),.35).normalize();
+  sun.position.copy(t).addScaledVector(sd,150);sun.target.position.copy(t);sun.intensity=.15+dl*1.05*(G&&G.storm?.4:1);hemi.intensity=.3+dl*.35;
+  const press=G?clamp((G.tf.p-6)/994,0,1):0;
+  tmpC.copy(skyDay).lerp(skyBlue,press);
+  if(dl<.25&&dl>0)tmpC.lerp(dusk,(.25-dl)/.25*.6);
+  tmpC.lerp(skyNight,1-clamp(dl*3+.08,0,1));
+  if(G&&G.storm)tmpC.lerp(stormC,.6*clamp(dl*3,0,1));
+  scene.background.copy(tmpC);scene.fog.color.copy(tmpC);
+  scene.fog.near=G&&G.storm?20:180;scene.fog.far=G&&G.storm?160:560;
+  // dust
+  dust.material.opacity=lerp(dust.material.opacity,G&&G.storm?.8:0,dt*1.5);
+  if(dust.material.opacity>.01){dust.position.set(t.x,t.y,t.z);const a=dust.geometry.attributes.position;for(let i=0;i<a.count;i++){let x=a.getX(i)+dt*30*(G?Math.max(G.speed,.3):1);if(x>90)x-=180;a.setX(i,x)}a.needsUpdate=true}
+  // buildings
+  if(G){
+    for(const b of G.buildings){const s=b.built>=1?1:Math.max(.01,b.built);b.mesh.scale.setScalar(s);const sp=b.mesh.getObjectByName('spin');if(sp&&!b.failed&&b.built>=1)sp.rotation.y+=dt*(G.speed?1.5:0)}
+    updateAgents(dt);
+  }
+  for(let i=anims.length-1;i>=0;i--){const a=anims[i];a.t+=dt;if(a.update(a.t)){a.end&&a.end();anims.splice(i,1)}}
+  SITES.forEach(s=>{s.beam.material.opacity=.25+.12*Math.sin(now/400)});
+  // labels
+  const w=view.clientWidth,h=view.clientHeight,v=new THREE.Vector3();
+  SITES.forEach(s=>{const el=labelEls[s.id];const show=!G||(s!==G.site);if(!show){el.style.display='none';return}
+    v.set(s.x,s.base+18,s.z).project(camera);if(v.z>1||Math.abs(v.x)>1.1||Math.abs(v.y)>1.1){el.style.display='none';return}
+    el.style.display='block';el.style.left=((v.x+1)/2*w)+'px';el.style.top=((1-v.y)/2*h)+'px';el.classList.toggle('taken',!!(G&&G.outposts.some(o=>o.site===s)));
+    el.textContent=s.name+(G&&G.outposts.some(o=>o.site===s)?' · outpost':'')});
+  renderer.render(scene,camera);
+  requestAnimationFrame(frame);
+}
+document.querySelectorAll('#timebar [data-speed]').forEach(b=>b.onclick=()=>{if(!G)return;G.speed=+b.dataset.speed;document.querySelectorAll('#timebar [data-speed]').forEach(x=>x.classList.toggle('on',x===b))});
+
+if(THREE_OK){
+  try{initThree();renderPane();requestAnimationFrame(frame);logMsg('Digital twin loaded: 4 candidate sites, '+CRATERS.length+' craters, Valles Marineris and Arsia Mons.','')}
+  catch(err){$('#startOv').querySelector('.card').innerHTML='<h3>3D view unavailable</h3><p>Your browser could not start WebGL ('+err.message+'). Turn on hardware acceleration and reload.</p>'}
+}else{$('#startOv').querySelector('.card').innerHTML='<h3>3D engine did not load</h3><p>The three.js library could not be fetched. Check your connection and reload the page.</p>'}
+</script>
+</body>
+</html>
